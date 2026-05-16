@@ -1,5 +1,5 @@
 requests
 python-dotenv
 pytz
-icalendar
+icalendar<6.0
 colorama
