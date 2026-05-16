@@ -1,5 +1,4 @@
 requests
 python-dotenv
 pytz
-icalendar==4.1.0
 colorama
