@@ -76,22 +76,22 @@ def run(ics_path: str | Path = None) -> None:
         sys.exit(1)
     print(f'[INFO] ICS file: {ics_path}')
 
-    # 내일 날짜 파싱
-    tomorrow = (datetime.now(KST) + timedelta(days=1)).date()
-    print(f'[INFO] Target date: {tomorrow.strftime("%Y-%m-%d")}')
+    # 이틀 후 날짜 파싱
+    target_date = (datetime.now(KST) + timedelta(days=2)).date()
+    print(f'[INFO] Target date: {target_date.strftime("%Y-%m-%d")}')
 
     try:
-        reservations = parse_ics(str(ics_path), tomorrow)
+        reservations = parse_ics(str(ics_path), target_date)
     except Exception as e:
         print(f'[ERROR] Failed to parse ICS file: {e}')
         sys.exit(1)
 
     if not reservations:
-        print(f'[INFO] No reservations for {tomorrow.strftime("%Y-%m-%d")}. Exiting.')
+        print(f'[INFO] No reservations for {target_date.strftime("%Y-%m-%d")}. Exiting.')
         return
 
     # 발송 대상 출력
-    print(f'\n=== Send targets ({tomorrow.strftime("%Y-%m-%d")} reservations) ===')
+    print(f'\n=== Send targets ({target_date.strftime("%Y-%m-%d")} reservations) ===')
     for i, res in enumerate(reservations, 1):
         print(
             f'[{i}] {res["car_num"]}  |  {_fmt_phone(res["phone"])}'
