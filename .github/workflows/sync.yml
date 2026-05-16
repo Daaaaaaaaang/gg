@@ -36,7 +36,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
           publish_branch: gh-pages
-          include_files: index.html
           # 매번 새로 덮어쓰기 (히스토리 불필요)
           force_orphan: true
           commit_message: "chore: auto-sync ${{ github.run_number }}"
