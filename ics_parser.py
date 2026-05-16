@@ -98,17 +98,24 @@ def _is_valid_hour(dt: datetime) -> bool:
 
 def _preprocess_ics(content: bytes) -> bytes:
     """
-    네이버 캘린더 ICS의 +0900 타임존 형식 문제를 파싱 전에 보정한다.
-    DTSTART/DTEND에 인라인 오프셋이 있으면 제거하고 TZID 방식으로 변환한다.
+    네이버 캘린더 ICS의 타임존 형식 문제를 파싱 전에 보정한다.
+    icalendar 라이브러리가 +0900 형식의 UTC 오프셋을 거부하므로:
+    1. VTIMEZONE 블록 전체 제거 (pytz로 대체)
+    2. DTSTART/DTEND의 TZID 파라미터 제거 (floating time으로 처리)
+    3. 인라인 UTC 오프셋 제거
     """
     import re as _re
     text = content.decode('utf-8', errors='replace')
-    # DTSTART:20260518T100000+0900 → DTSTART;TZID=Asia/Seoul:20260518T100000
-    text = _re.sub(
-        r'(DTSTART|DTEND):(\d{8}T\d{6})[+-]\d{4}',
-        r'\1;TZID=Asia/Seoul:\2',
-        text
-    )
+
+    # 1. VTIMEZONE 블록 전체 제거
+    text = _re.sub(r'BEGIN:VTIMEZONE.*?END:VTIMEZONE\r?\n?', '', text, flags=_re.DOTALL)
+
+    # 2. DTSTART;TZID=...:YYYYMMDDTHHMMSS → DTSTART:YYYYMMDDTHHMMSS
+    text = _re.sub(r'(DTSTART|DTEND);TZID=[^:]+:(\d{8}T\d{6})', r'\1:\2', text)
+
+    # 3. DTSTART:YYYYMMDDTHHMMSS+0900 → DTSTART:YYYYMMDDTHHMMSS
+    text = _re.sub(r'(DTSTART|DTEND):(\d{8}T\d{6})[+-]\d{4}', r'\1:\2', text)
+
     return text.encode('utf-8')
 
 
