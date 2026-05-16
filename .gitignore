@@ -1,0 +1,6 @@
+.env
+calendar.ics
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
