@@ -96,9 +96,26 @@ def _is_valid_hour(dt: datetime) -> bool:
     return 6 <= dt.hour <= 21
 
 
+def _preprocess_ics(content: bytes) -> bytes:
+    """
+    네이버 캘린더 ICS의 +0900 타임존 형식 문제를 파싱 전에 보정한다.
+    DTSTART/DTEND에 인라인 오프셋이 있으면 제거하고 TZID 방식으로 변환한다.
+    """
+    import re as _re
+    text = content.decode('utf-8', errors='replace')
+    # DTSTART:20260518T100000+0900 → DTSTART;TZID=Asia/Seoul:20260518T100000
+    text = _re.sub(
+        r'(DTSTART|DTEND):(\d{8}T\d{6})[+-]\d{4}',
+        r'\1;TZID=Asia/Seoul:\2',
+        text
+    )
+    return text.encode('utf-8')
+
+
 def parse_ics(filepath: str, target_date: date, debug: bool = False) -> list[dict]:
     with open(filepath, 'rb') as f:
-        cal = Calendar.from_ical(f.read())
+        raw = f.read()
+    cal = Calendar.from_ical(_preprocess_ics(raw))
 
     all_events = [c for c in cal.walk() if c.name == 'VEVENT']
 
