@@ -11,6 +11,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  PYTHON_EXE: C:\Users\gkgkd\AppData\Local\Programs\Python\Python314\python.exe
 
 jobs:
   sync-and-deploy:
@@ -21,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: python -m pip install --force-reinstall -r requirements.txt
+        run: '& "$env:PYTHON_EXE" -m pip install --force-reinstall -r requirements.txt'
 
       - name: Run sync + HTML generation + alimtalk
         env:
@@ -32,7 +33,7 @@ jobs:
           ALIGO_TPL_CODE:    ${{ secrets.ALIGO_TPL_CODE }}
           SENDER_PHONE:      ${{ secrets.SENDER_PHONE }}
           TEST_MODE:         ${{ secrets.TEST_MODE }}
-        run: python main.py
+        run: '& "$env:PYTHON_EXE" main.py'
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
