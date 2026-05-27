@@ -276,7 +276,11 @@
     #scheduleContainer{width:100%;max-width:100%;overflow:hidden;}
     .day-section{width:100%;max-width:100%;overflow:hidden;}
     .job-card{display:block;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden;padding:10px 11px;position:relative;}
-    .time-col{display:inline-block;font-size:23px;font-weight:700;color:var(--text-muted);margin-bottom:5px;vertical-align:middle;text-align:center;}
+    .job-card.is-current{border-left:3px solid var(--accent);padding-left:8px;}
+    .time-col{display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:4px;font-size:14px;font-weight:700;color:var(--text-muted);margin-bottom:5px;white-space:normal;line-height:1.4;}
+    .time-col .time-am,.time-col .time-pm,.time-col .time-ampm{font-size:11px;}
+    .time-end{display:inline-flex;align-items:center;gap:3px;font-size:14px;margin-top:0;white-space:normal;opacity:0.8;}
+    .time-end .time-am,.time-end .time-pm{font-size:11px;}
     .card-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;}
     .btn-icon{width:26px;height:26px;font-size:12px;}
     .job-body{width:100%;overflow:hidden;overflow-wrap:break-word;word-break:break-word;}
