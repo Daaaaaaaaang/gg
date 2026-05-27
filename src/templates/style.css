@@ -264,9 +264,10 @@
     .clock-date{font-size:10px;}
     .header-right{display:contents;}
     .header-right .clock-block{display:none;}
-    .btn-theme{width:28px;height:28px;font-size:13px;border-radius:6px;}
+    .btn-theme{width:30px;height:30px;font-size:13px;border-radius:6px;}
+    .btn-theme svg{width:22px;height:22px;}
     .btn-add{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;}
-    .btn-parts-toggle{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;}
+    .btn-parts-toggle{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;margin-left:auto;}
     .search-wrap{width:100%;max-width:100%;margin:0;display:flex;}
     .stats{display:flex;gap:14px;font-size:11px;border-top:1px solid var(--border);padding-top:6px;}
     .filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
