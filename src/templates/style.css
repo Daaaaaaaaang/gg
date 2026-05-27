@@ -105,7 +105,7 @@
 
   /* Parts checkboxes */
   .parts-block{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
-  .parts-block-label{font-size:11px;color:var(--text-muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px;}
+  .parts-block-label{font-size:12px;color:var(--text-muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px;}
   .part-row{display:flex;align-items:center;gap:8px;padding:4px 7px;border-radius:5px;cursor:pointer;transition:background 0.12s;user-select:none;}
   .part-row:hover{background:var(--surface2);}
   .part-row.checked{opacity:0.4;}
@@ -114,7 +114,7 @@
   .part-row.checked .cb-box{background:var(--accent2);border-color:var(--accent2);}
   .cb-box svg{display:none;width:9px;height:9px;}
   .part-row.checked .cb-box svg{display:block;}
-  .part-label{font-size:13px;color:var(--accent2);line-height:1.4;flex:1;overflow-wrap:break-word;}
+  .part-label{font-size:14px;color:var(--accent2);line-height:1.4;flex:1;overflow-wrap:break-word;}
   .part-memo-btn{background:none;border:none;cursor:pointer;font-size:13px;opacity:0.35;padding:0 2px;line-height:1;transition:opacity 0.13s;flex-shrink:0;color:var(--text-muted);}
   .part-memo-btn:hover{opacity:0.9;}
   .part-memo-btn.has-memo{opacity:0.85;color:var(--text);}
@@ -122,10 +122,10 @@
   .part-memo-wrap{padding:2px 7px 5px 30px;display:none;}
   .part-memo-wrap.open{display:block;}
   .part-memo-wrap.always{display:block;}
-  .part-memo-input{width:100%;font-size:12px;font-family:inherit;background:transparent;border:none;border-bottom:1px dashed var(--border);color:var(--text-muted);outline:none;padding:2px 0;line-height:1.5;}
+  .part-memo-input{width:100%;font-size:13px;font-family:inherit;background:transparent;border:none;border-bottom:1px dashed var(--border);color:var(--text-muted);outline:none;padding:2px 0;line-height:1.5;}
   .part-memo-input:focus{border-bottom-color:var(--accent);color:var(--text);}
   .part-memo-input::placeholder{color:var(--border);}
-  .part-memo-text{font-size:12px;color:var(--text-muted);font-style:italic;line-height:1.5;padding:2px 0;cursor:pointer;}
+  .part-memo-text{font-size:13px;color:var(--text-muted);font-style:italic;line-height:1.5;padding:2px 0;cursor:pointer;}
   .part-memo-text:hover{color:var(--text);}
 
   /* Card actions */
@@ -293,7 +293,7 @@
     .plate{font-size:15px;font-weight:700;}
     .vin{font-size:11px;font-weight:700;}
     .phone{font-size:13px;overflow-wrap:break-word;word-break:break-all;}
-    .part-label{font-size:13px;overflow-wrap:break-word;}
+    .part-label{font-size:14px;overflow-wrap:break-word;}
     .day-label{font-size:11px;padding:2px 8px;}
     .status-badge{top:8px;right:64px;font-size:9px;}
     .modal{padding:16px;border-radius:12px 12px 0 0;max-height:85vh;width:100%;max-width:100%;}
