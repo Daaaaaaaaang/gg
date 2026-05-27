@@ -63,7 +63,7 @@ function formatTime(t) {
   const p = parseTimeAmpm(t);
   if (!p) return '<span class="time-ampm">' + t + '</span>';
   const cls = p.ampm === '오전' ? 'time-am' : 'time-pm';
-  return `<span class="${cls}">${p.ampm}</span>\n${p.hour}`;
+  return `<span class="${cls}">${p.ampm}</span><span class="time-hour">${p.hour}</span>`;
 }
 
 // 종료 시간 포맷: 시작과 오전/오후가 같으면 레이블 생략
@@ -73,11 +73,11 @@ function formatEndTime(endT, startT) {
   if (!ep) return '';
   if (sp && ep.ampm === sp.ampm) {
     // 같은 오전/오후 → 레이블 생략, 시간만 반환
-    return ep.hour;
+    return `<span class="time-hour">${ep.hour}</span>`;
   }
   // 다른 오전/오후 → 레이블 표시
   const cls = ep.ampm === '오전' ? 'time-am' : 'time-pm';
-  return `<span class="${cls}">${ep.ampm}</span>\n${ep.hour}`;
+  return `<span class="${cls}">${ep.ampm}</span><span class="time-hour">${ep.hour}</span>`;
 }
 
 // ── 정렬 ─────────────────────────────────────────────────────
@@ -108,7 +108,11 @@ function updateClock() {
   const yyyy = now.getFullYear();
   const mo = String(now.getMonth()+1).padStart(2,'0');
   const dd = String(now.getDate()).padStart(2,'0');
-  document.getElementById('clockTime').innerHTML = `${formatTime(`${hh}:${mm}`)}:${ss}`;
+  const cp = parseTimeAmpm(`${hh}:${mm}`);
+  const ccls = cp ? (cp.ampm === '오전' ? 'time-am' : 'time-pm') : '';
+  document.getElementById('clockTime').innerHTML = cp
+    ? `<span class="${ccls}">${cp.ampm}</span> ${cp.hour}:${ss}`
+    : `${hh}:${mm}:${ss}`;
   document.getElementById('clockDate').textContent = `${yyyy}.${mo}.${dd} (${DAY_KO[now.getDay()]})`;
   const hdr = document.getElementById('headerMonth');
   if (hdr) hdr.textContent = `${yyyy}년 ${now.getMonth()+1}월`;
@@ -195,7 +199,7 @@ function renderSchedule() {
       card.className = 'job-card'+(job.done?' is-done':'')+(job.cancelled?' is-cancelled':'')+(isCurrent?' is-current':'');
       const endStr = job.endDate ? `<br><span style="font-size:13px;opacity:.5">→${job.endDate}</span>` : '';
       const endTimeHtml = (!job.endDate && job.endTime && job.endTime !== '종일' && job.endTime !== job.time)
-        ? `<div class="time-end">~ ${formatEndTime(job.endTime, job.time)}</div>` : '';
+        ? `<div class="time-end"><span class="time-tilde">~</span>${formatEndTime(job.endTime, job.time)}</div>` : '';
       const badge = job.cancelled ? '<span class="status-badge badge-cancel">취소</span>' : job.done ? '<span class="status-badge badge-done">완료</span>' : '';
       const noteHtml = job.note ? `<div class="job-note">${highlight(job.note, searchQuery)}</div>` : '';
       const phoneHtml = job.phone ? `<div class="phone">${highlight(job.phone, searchQuery)}</div>` : '';

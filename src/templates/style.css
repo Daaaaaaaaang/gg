@@ -85,8 +85,9 @@
   .status-badge{position:absolute;top:8px;right:44px;font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:0.4px;}
   .badge-cancel{color:var(--red);background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.3);}
   .badge-done{color:var(--green);background:rgba(61,220,132,0.1);border:1px solid rgba(61,220,132,0.3);}
-  .time-col{font-family:'Courier New',Courier,monospace;font-size:16px;color:var(--text-muted);padding-top:2px;text-align:center;line-height:1.4;min-width:72px;white-space:pre;word-break:break-word;}
-  .time-end{font-family:'Courier New',Courier,monospace;font-size:12px;color:var(--text-muted);opacity:0.7;text-align:center;margin-top:2px;white-space:pre;}
+  .time-col{font-family:'Courier New',Courier,monospace;font-size:16px;color:var(--text-muted);padding-top:2px;text-align:center;line-height:1.4;min-width:72px;display:flex;flex-direction:column;align-items:center;word-break:break-word;}
+  .time-end{font-family:'Courier New',Courier,monospace;font-size:12px;color:var(--text-muted);opacity:0.7;text-align:center;margin-top:2px;display:flex;align-items:baseline;gap:2px;justify-content:center;}
+  .time-tilde{opacity:0.8;}
   .time-am{color:#4a90e2;font-weight:700;font-size:0.85em;}
   .time-pm{color:#e07b39;font-weight:700;font-size:0.85em;}
   .time-ampm{color:var(--text-muted);font-size:0.85em;}
@@ -279,8 +280,9 @@
     .job-card.is-current{border-left:3px solid var(--accent);padding-left:8px;}
     .time-col{display:flex;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:4px;font-size:18px;font-weight:700;color:var(--text-muted);margin-bottom:5px;white-space:normal;line-height:1.4;}
     .time-col .time-am,.time-col .time-pm,.time-col .time-ampm{font-size:15px;}
-    .time-end{display:inline-flex;align-items:baseline;gap:3px;font-size:18px;margin-top:0;white-space:normal;opacity:0.8;}
-    .time-end .time-am,.time-end .time-pm{font-size:15px;}
+    .time-end{display:inline-flex;align-items:baseline;gap:4px;font-size:18px;margin-top:0;white-space:normal;opacity:0.9;}
+    .time-end .time-am,.time-end .time-pm,.time-end .time-hour{font-size:inherit;}
+    .time-end .time-tilde{opacity:0.7;}
     .card-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;}
     .btn-icon{width:26px;height:26px;font-size:12px;}
     .job-body{width:100%;overflow:hidden;overflow-wrap:break-word;word-break:break-word;}
