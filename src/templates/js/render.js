@@ -167,12 +167,33 @@ function renderSchedule() {
     section.className = 'day-section';
     section.innerHTML = `<div class="day-header"><span class="day-label${isToday?' today':''}">${m}월 ${d}일 (${getDayName(date)})</span><span class="day-count">${activeCount}건</span></div>`;
 
+    const now = getNow();
+    const nowH = now.getHours();
+    const nowM = now.getMinutes();
+    const nowTotal = nowH * 60 + nowM;
+
     indices.forEach(ji => {
       const job = JOBS[ji];
       if (!jobMatchesSearch(job)) return;
       if (partsOnly && !(job.parts && job.parts.length > 0)) return;
+
+      // 현재 진행 중인 일정 판단 (오늘 날짜이고, 시작~종료 시간 사이)
+      let isCurrent = false;
+      if (isToday && job.time && job.time !== '종일' && !job.done && !job.cancelled) {
+        const [sh, sm] = job.time.split(':').map(Number);
+        const startTotal = sh * 60 + sm;
+        if (job.endTime && job.endTime !== '종일') {
+          const [eh, em] = job.endTime.split(':').map(Number);
+          const endTotal = eh * 60 + em;
+          isCurrent = nowTotal >= startTotal && nowTotal < endTotal;
+        } else {
+          // 종료 시간 없으면 시작 시각의 같은 시간대(한 시간 내)
+          isCurrent = nowH === sh;
+        }
+      }
+
       const card = document.createElement('div');
-      card.className = 'job-card'+(job.done?' is-done':'')+(job.cancelled?' is-cancelled':'');
+      card.className = 'job-card'+(job.done?' is-done':'')+(job.cancelled?' is-cancelled':'')+(isCurrent?' is-current':'');
       const endStr = job.endDate ? `<br><span style="font-size:13px;opacity:.5">→${job.endDate}</span>` : '';
       const endTimeHtml = (!job.endDate && job.endTime && job.endTime !== '종일' && job.endTime !== job.time)
         ? `<div class="time-end">~ ${formatEndTime(job.endTime, job.time)}</div>` : '';

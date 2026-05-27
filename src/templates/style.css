@@ -76,6 +76,7 @@
 
   /* Job card */
   .job-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:7px;display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:start;transition:border-color 0.2s,box-shadow 0.2s;position:relative;width:100%;box-sizing:border-box;overflow:hidden;}
+  .job-card.is-current{border-left:3px solid var(--accent);padding-left:11px;}
   .job-card:hover{border-color:rgba(79,127,255,0.4);box-shadow:0 2px 10px rgba(79,127,255,0.12);}
   .job-card.is-done{opacity:0.45;}
   .job-card.is-cancelled{opacity:0.4;background:rgba(58,31,31,0.5);border-color:#4a2020;}
