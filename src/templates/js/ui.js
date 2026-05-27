@@ -29,16 +29,6 @@ function initTheme() {
   document.getElementById('themeBtn').innerHTML = isLight ? MOON_SVG : SUN_SVG;
 }
 
-// ── 갱신 시간 표시 ────────────────────────────────────────────
-var LS_LAST_UPDATED = 'jungbi_last_updated';
-function showLastUpdated(ts) {
-  try {
-    const val = ts || localStorage.getItem(LS_LAST_UPDATED);
-    const el = document.getElementById('lastUpdated');
-    if (val && el) el.innerHTML = `최종 갱신 <b>${val}</b>`;
-  } catch(e) {}
-}
-
 // ── ICS 병합 업데이트 ─────────────────────────────────────────
 async function mergeAndUpdate(newJobs) {
   const jobKey = _jobKey;
@@ -112,26 +102,6 @@ async function mergeAndUpdate(newJobs) {
   renderSchedule();
 }
 
-// ── ICS 파일 불러오기 ─────────────────────────────────────────
-function loadICSFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    const jobs = parseICSText(e.target.result);
-    if (jobs.length === 0) { alert('일정을 찾을 수 없어요. ICS 파일을 확인해주세요.'); return; }
-    await mergeAndUpdate(jobs);
-    const now = getNow();
-    const ts = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    try { localStorage.setItem(LS_LAST_UPDATED, ts); } catch(e) {}
-    if (SB_READY) sbSet(LS_LAST_UPDATED, ts);
-    showLastUpdated(ts);
-    alert(jobs.length + '개 일정 갱신 완료!');
-  };
-  reader.readAsText(file, 'utf-8');
-  input.value = '';
-}
-
 // ── 비밀번호 보호 ─────────────────────────────────────────────
 const PW_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // 1234
 async function hashPw(pw) {
@@ -160,7 +130,6 @@ if (sessionStorage.getItem('jungbi_auth') === '1') {
 
 // ── 초기화 ───────────────────────────────────────────────────
 initTheme();
-showLastUpdated();
 
 (async function initFromSupabase() {
   try {
@@ -196,9 +165,6 @@ showLastUpdated();
       partMemos = Object.assign({}, partMemos, sbMemos);
       try { localStorage.setItem(LS_PMEMO, JSON.stringify(partMemos)); } catch(e) {}
     }
-    // Supabase 갱신 시간 로드
-    const sbTs = await sbGet(LS_LAST_UPDATED);
-    if (sbTs) { showLastUpdated(sbTs); try { localStorage.setItem(LS_LAST_UPDATED, sbTs); } catch(e) {} }
     SB_READY = true;
     console.log('Supabase 데이터 로드 완료');
   } catch(e) {

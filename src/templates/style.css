@@ -41,14 +41,6 @@
   .btn-parts-toggle{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:0 11px;height:36px;box-sizing:border-box;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all 0.15s;font-family:inherit;white-space:nowrap;}
   .btn-parts-toggle:hover{border-color:var(--accent2);color:var(--accent2);}
   .btn-parts-toggle.active{background:var(--accent2);border-color:var(--accent2);color:white;}
-  .btn-ics{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:0 11px;height:36px;box-sizing:border-box;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all 0.15s;font-family:inherit;white-space:nowrap;}
-  .btn-ics:hover{border-color:var(--green);color:var(--green);}
-  .last-updated{font-size:11px;color:var(--text-muted);white-space:nowrap;}
-  .last-updated b{color:var(--green);}
-  .btn-ics{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:0 11px;height:36px;box-sizing:border-box;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all 0.15s;font-family:inherit;white-space:nowrap;}
-  .btn-ics:hover{border-color:var(--green);color:var(--green);}
-  .last-updated{font-size:11px;color:var(--text-muted);white-space:nowrap;}
-  .last-updated b{color:var(--green);}
 
   /* Search */
   .search-wrap{width:320px;max-width:380px;margin:0 auto 0 16px;position:relative;display:flex;align-items:center;}
@@ -271,9 +263,7 @@
     .header-right .clock-block{display:none;}
     .btn-theme{width:28px;height:28px;font-size:13px;border-radius:6px;}
     .btn-add{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;}
-    .btn-ics{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;}
     .btn-parts-toggle{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;}
-    .last-updated{font-size:10px;}
     .search-wrap{width:100%;max-width:100%;margin:0;display:flex;}
     .stats{display:flex;gap:14px;font-size:11px;border-top:1px solid var(--border);padding-top:6px;}
     .filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
