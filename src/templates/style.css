@@ -279,9 +279,8 @@
     .job-card{display:block;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden;padding:10px 11px;position:relative;}
     .job-card.is-current{border-left:3px solid var(--accent);padding-left:8px;}
     .time-col{display:flex;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:4px;font-size:18px;font-weight:700;color:var(--text-muted);margin-bottom:5px;white-space:normal;line-height:1.4;}
-    .time-col .time-am,.time-col .time-pm,.time-col .time-ampm{font-size:15px;}
+    .time-col .time-am,.time-col .time-pm,.time-col .time-ampm,.time-end .time-am,.time-end .time-pm{font-size:15px;}
     .time-end{display:inline-flex;align-items:baseline;gap:4px;font-size:18px;margin-top:0;white-space:normal;opacity:0.9;}
-    .time-end .time-am,.time-end .time-pm,.time-end .time-hour{font-size:inherit;}
     .time-end .time-tilde{opacity:0.7;}
     .card-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;}
     .btn-icon{width:26px;height:26px;font-size:12px;}
