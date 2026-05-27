@@ -45,18 +45,40 @@ function isChecked(ji, pi) { return !!checkedState[stableKey(ji, pi)]; }
 function setChecked(ji, pi, v) { checkedState[stableKey(ji, pi)] = v; saveChecked(); }
 
 // ── 시간 포맷 ─────────────────────────────────────────────────
-function formatTime(t) {
-  if (!t || t === '종일') return '<span class="time-ampm">' + (t || '종일') + '</span>';
+function parseTimeAmpm(t) {
+  if (!t || t === '종일') return null;
   const m = t.match(/^(\d{1,2}):(\d{2})$/);
-  if (!m) return '<span class="time-ampm">' + t + '</span>';
+  if (!m) return null;
   const h = parseInt(m[1]), min = m[2];
   let ampm, hour;
   if (h === 0)       { ampm = '오전'; hour = `12:${min}`; }
   else if (h < 12)   { ampm = '오전'; hour = `${h}:${min}`; }
   else if (h === 12) { ampm = '오후'; hour = `12:${min}`; }
   else               { ampm = '오후'; hour = `${h - 12}:${min}`; }
-  const cls = ampm === '오전' ? 'time-am' : 'time-pm';
-  return `<span class="${cls}">${ampm}</span>\n${hour}`;
+  return { ampm, hour };
+}
+
+function formatTime(t) {
+  if (!t || t === '종일') return '<span class="time-ampm">' + (t || '종일') + '</span>';
+  const p = parseTimeAmpm(t);
+  if (!p) return '<span class="time-ampm">' + t + '</span>';
+  const cls = p.ampm === '오전' ? 'time-am' : 'time-pm';
+  return `<span class="${cls}">${p.ampm}</span>\n${p.hour}`;
+}
+
+// 종료 시간 포맷: 시작과 오전/오후가 같으면 레이블 생략
+function formatEndTime(endT, startT) {
+  const ep = parseTimeAmpm(endT);
+  const sp = parseTimeAmpm(startT);
+  if (!ep) return '';
+  if (sp && ep.ampm === sp.ampm) {
+    // 같은 오전/오후 → 레이블 생략
+    const cls = ep.ampm === '오전' ? 'time-am' : 'time-pm';
+    return `<span class="${cls}" style="font-size:10px;opacity:0.5"></span>\n${ep.hour}`;
+  }
+  // 다른 오전/오후 → 레이블 표시
+  const cls = ep.ampm === '오전' ? 'time-am' : 'time-pm';
+  return `<span class="${cls}">${ep.ampm}</span>\n${ep.hour}`;
 }
 
 // ── 정렬 ─────────────────────────────────────────────────────
@@ -153,7 +175,7 @@ function renderSchedule() {
       card.className = 'job-card'+(job.done?' is-done':'')+(job.cancelled?' is-cancelled':'');
       const endStr = job.endDate ? `<br><span style="font-size:13px;opacity:.5">→${job.endDate}</span>` : '';
       const endTimeHtml = (!job.endDate && job.endTime && job.endTime !== '종일' && job.endTime !== job.time)
-        ? `<div class="time-end">~ ${formatTime(job.endTime)}</div>` : '';
+        ? `<div class="time-end">~ ${formatEndTime(job.endTime, job.time)}</div>` : '';
       const badge = job.cancelled ? '<span class="status-badge badge-cancel">취소</span>' : job.done ? '<span class="status-badge badge-done">완료</span>' : '';
       const noteHtml = job.note ? `<div class="job-note">${highlight(job.note, searchQuery)}</div>` : '';
       const phoneHtml = job.phone ? `<div class="phone">${highlight(job.phone, searchQuery)}</div>` : '';
