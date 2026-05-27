@@ -72,9 +72,8 @@ function formatEndTime(endT, startT) {
   const sp = parseTimeAmpm(startT);
   if (!ep) return '';
   if (sp && ep.ampm === sp.ampm) {
-    // 같은 오전/오후 → 레이블 생략
-    const cls = ep.ampm === '오전' ? 'time-am' : 'time-pm';
-    return `<span class="${cls}" style="font-size:10px;opacity:0.5"></span>\n${ep.hour}`;
+    // 같은 오전/오후 → 레이블 생략, 시간만 반환
+    return ep.hour;
   }
   // 다른 오전/오후 → 레이블 표시
   const cls = ep.ampm === '오전' ? 'time-am' : 'time-pm';
