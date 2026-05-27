@@ -152,6 +152,8 @@ function renderSchedule() {
       const card = document.createElement('div');
       card.className = 'job-card'+(job.done?' is-done':'')+(job.cancelled?' is-cancelled':'');
       const endStr = job.endDate ? `<br><span style="font-size:13px;opacity:.5">→${job.endDate}</span>` : '';
+      const endTimeHtml = (!job.endDate && job.endTime && job.endTime !== '종일' && job.endTime !== job.time)
+        ? `<div class="time-end">~ ${formatTime(job.endTime)}</div>` : '';
       const badge = job.cancelled ? '<span class="status-badge badge-cancel">취소</span>' : job.done ? '<span class="status-badge badge-done">완료</span>' : '';
       const noteHtml = job.note ? `<div class="job-note">${highlight(job.note, searchQuery)}</div>` : '';
       const phoneHtml = job.phone ? `<div class="phone">${highlight(job.phone, searchQuery)}</div>` : '';
@@ -187,7 +189,7 @@ function renderSchedule() {
         partsHtml = `<div class="parts-block"><div class="parts-block-label">발주 부품</div>${rows}</div>`;
       }
       card.innerHTML = `${badge}
-        <div class="time-col">${formatTime(job.time)}${endStr}</div>
+        <div class="time-col">${formatTime(job.time)}${endTimeHtml}${endStr}</div>
         <div class="job-body">
           <div class="job-top">
             ${alertIcon}<span class="car-model" style="background:${mc.bg};border-color:${mc.border};color:${mc.text}">${highlight(displayModel(job.model), searchQuery)||''}</span>

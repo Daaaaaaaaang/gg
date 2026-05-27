@@ -85,7 +85,7 @@ def load_ics_folder(folder):
                 continue
             seen.add(dedup_key)
             date_str, time_str = parse_dt_str(ev.get("DTSTART", ""))
-            end_date_str, _ = parse_dt_str(ev.get("DTEND", ""))
+            end_date_str, end_time_str = parse_dt_str(ev.get("DTEND", ""))
             if end_date_str == date_str:
                 end_date_str = ""
             if not date_str:
@@ -99,6 +99,7 @@ def load_ics_folder(folder):
                 "date": date_str,
                 "endDate": end_date_str,
                 "time": time_str or "종일",
+                "endTime": end_time_str or "",
                 "model": model,
                 "plate": plate,
                 "region": vin,
