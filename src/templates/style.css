@@ -36,7 +36,7 @@
   .btn-add{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;padding:0 13px;height:36px;box-sizing:border-box;border-radius:6px;border:none;background:var(--accent);color:white;cursor:pointer;transition:opacity 0.15s;font-family:inherit;}
   .btn-add:hover{opacity:0.85;}
   .btn-theme{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;color:var(--text);}
-  .btn-theme svg{width:18px;height:18px;}
+  .btn-theme svg{width:20px;height:20px;}
   .btn-theme:hover{border-color:var(--accent);}
   .btn-parts-toggle{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:0 11px;height:36px;box-sizing:border-box;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all 0.15s;font-family:inherit;white-space:nowrap;}
   .btn-parts-toggle:hover{border-color:var(--accent2);color:var(--accent2);}
@@ -265,7 +265,7 @@
     .header-right{display:contents;}
     .header-right .clock-block{display:none;}
     .btn-theme{width:36px;height:36px;font-size:13px;border-radius:6px;}
-    .btn-theme svg{width:22px;height:22px;}
+    .btn-theme svg{width:20px;height:20px;}
     .btn-add{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;}
     .btn-parts-toggle{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;margin-left:auto;}
     .search-wrap{width:100%;max-width:100%;margin:0;display:flex;}
