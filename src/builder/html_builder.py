@@ -34,6 +34,7 @@ def jobs_to_js(jobs):
             "  {date:" + json.dumps(j["date"], ensure_ascii=False)
             + ",endDate:" + json.dumps(j.get("endDate", ""), ensure_ascii=False)
             + ",time:" + json.dumps(j["time"], ensure_ascii=False)
+            + ",endTime:" + json.dumps(j.get("endTime", ""), ensure_ascii=False)
             + ",model:" + json.dumps(j["model"], ensure_ascii=False)
             + ",plate:" + json.dumps(j["plate"], ensure_ascii=False)
             + ",region:" + json.dumps(j.get("region", ""), ensure_ascii=False)
