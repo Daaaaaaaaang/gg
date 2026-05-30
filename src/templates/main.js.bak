@@ -1,0 +1,994 @@
+const ALERT_SVG  = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#cf222e" style="vertical-align:-3px;margin-right:4px;flex-shrink:0;"><path d="M13 17.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-.25-8.25a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0v-4.5Z"></path><path d="M9.836 3.244c.963-1.665 3.365-1.665 4.328 0l8.967 15.504c.963 1.667-.24 3.752-2.165 3.752H3.034c-1.926 0-3.128-2.085-2.165-3.752Zm3.03.751a1.002 1.002 0 0 0-1.732 0L2.168 19.499A1.002 1.002 0 0 0 3.034 21h17.932a1.002 1.002 0 0 0 .866-1.5L12.866 3.994Z"></path></svg>`;
+const CHECK_SVG  = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M21.03 5.72a.75.75 0 0 1 0 1.06l-11.5 11.5a.747.747 0 0 1-1.072-.012l-5.5-5.75a.75.75 0 1 1 1.084-1.036l4.97 5.195L19.97 5.72a.75.75 0 0 1 1.06 0Z"></path></svg>`;
+const PENCIL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.263 2.177a1.75 1.75 0 0 1 2.474 0l2.586 2.586a1.75 1.75 0 0 1 0 2.474L19.53 10.03l-.012.013L8.69 20.378a1.753 1.753 0 0 1-.699.409l-5.523 1.68a.748.748 0 0 1-.747-.188.748.748 0 0 1-.188-.747l1.673-5.5a1.75 1.75 0 0 1 .466-.756L14.476 4.963ZM4.708 16.361a.26.26 0 0 0-.067.108l-1.264 4.154 4.177-1.271a.253.253 0 0 0 .1-.059l10.273-9.806-2.94-2.939-10.279 9.813ZM19 8.44l2.263-2.262a.25.25 0 0 0 0-.354l-2.586-2.586a.25.25 0 0 0-.354 0L16.061 5.5Z"></path></svg>`;
+const TRASH_SVG  = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1.75V3h5.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H8V1.75C8 .784 8.784 0 9.75 0h4.5C15.216 0 16 .784 16 1.75Zm-6.5 0V3h5V1.75a.25.25 0 0 0-.25-.25h-4.5a.25.25 0 0 0-.25.25ZM4.997 6.178a.75.75 0 1 0-1.493.144L4.916 20.92a1.75 1.75 0 0 0 1.742 1.58h10.684a1.75 1.75 0 0 0 1.742-1.581l1.413-14.597a.75.75 0 0 0-1.494-.144l-1.412 14.596a.25.25 0 0 1-.249.226H6.658a.25.25 0 0 1-.249-.226L4.997 6.178Z"></path><path d="M9.206 7.501a.75.75 0 0 1 .793.705l.5 8.5A.75.75 0 1 1 9 16.794l-.5-8.5a.75.75 0 0 1 .705-.793Zm6.293.793A.75.75 0 1 0 14 8.206l-.5 8.5a.75.75 0 0 0 1.498.088l.5-8.5Z"></path></svg>`;
+const NOTE_SVG   = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M0 4.75C0 3.784.784 3 1.75 3h20.5c.966 0 1.75.784 1.75 1.75v14.5A1.75 1.75 0 0 1 22.25 21H1.75A1.75 1.75 0 0 1 0 19.25Zm1.75-.25a.25.25 0 0 0-.25.25v14.5c0 .138.112.25.25.25h20.5a.25.25 0 0 0 .25-.25V4.75a.25.25 0 0 0-.25-.25Z"></path><path d="M5 8.75A.75.75 0 0 1 5.75 8h11.5a.75.75 0 0 1 0 1.5H5.75A.75.75 0 0 1 5 8.75Zm0 4a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Z"></path></svg>`;
+const MOON_SVG   = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14.768 3.96v.001l-.002-.005a9.08 9.08 0 0 0-.218-.779c-.13-.394.21-.8.602-.67.29.096.575.205.855.328l.01.005A10.002 10.002 0 0 1 12 22a10.002 10.002 0 0 1-9.162-5.985l-.004-.01a9.722 9.722 0 0 1-.329-.855c-.13-.392.277-.732.67-.602.257.084.517.157.78.218l.004.002A9 9 0 0 0 14.999 6a9.09 9.09 0 0 0-.231-2.04ZM16.5 6c0 5.799-4.701 10.5-10.5 10.5-.426 0-.847-.026-1.26-.075A8.5 8.5 0 1 0 16.425 4.74c.05.413.075.833.075 1.259Z"></path></svg>`;
+const SUN_SVG    = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 19a7 7 0 1 1 0-14 7 7 0 0 1 0 14Zm0-1.5a5.5 5.5 0 1 0 0-11 5.5 5.5 0 1 0 0 11Zm-5.657.157a.75.75 0 0 1 0 1.06l-1.768 1.768a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734l1.767-1.768a.75.75 0 0 1 1.061 0ZM3.515 3.515a.75.75 0 0 1 1.06 0l1.768 1.768a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L3.515 4.575a.75.75 0 0 1 0-1.06ZM12 0a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 12 0ZM4 12a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h2.5A.75.75 0 0 1 4 12Zm8 8a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-2.5A.75.75 0 0 1 12 20Zm12-8a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h2.5A.75.75 0 0 1 24 12Zm-6.343 5.657a.75.75 0 0 1 1.06 0l1.768 1.768a.751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018l-1.768-1.767a.75.75 0 0 1 0-1.061Zm2.828-14.142a.75.75 0 0 1 0 1.06l-1.768 1.768a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l1.767-1.768a.75.75 0 0 1 1.061 0Z"></path></svg>`;
+const DAY_KO = ['일','월','화','수','목','금','토'];
+
+// ── 차종 표시명 (d/s 등 suffix 제거) ───────────────────────
+function displayModel(model) {
+  return (model||'').replace(/[a-z]+$/i, '');
+}
+
+// ── 차종별 색상 ────────────────────────────────────────────
+function getModelColor(model) {
+  const base = (model||'').toUpperCase().replace(/[DS]$/,'');
+  if (['R50','R52','R53'].includes(base)) return {bg:'#ffcfc9',border:'#e8a49e',text:'#111'};
+  if (['R55','R56','R57','R58','R59','R60','R61'].includes(base)) return {bg:'#ffe5a0',border:'#d4b96a',text:'#111'};
+  if (['F54','F55','F56','F57','F60'].includes(base)) return {bg:'#bfe1f6',border:'#7cb8e0',text:'#111'};
+  if (['F65','F66','F67','U25'].includes(base)) return {bg:'#e6cff2',border:'#c09ad8',text:'#111'};
+  return {bg:'rgba(79,127,255,0.12)',border:'rgba(79,127,255,0.35)',text:'var(--accent)'};
+}
+
+// ── localStorage ────────────────────────────────────────────
+const DEFAULT_JOBS = [
+__JOBS__
+];
+
+window.LS_JOBS    = 'junghbi_jobs';
+window.LS_CHECKED = 'junghbi_checked';
+var LS_JOBS    = window.LS_JOBS;
+var LS_CHECKED = window.LS_CHECKED;
+
+// ── Supabase 설정 ─────────────────────────────────────────────────────
+var SB_URL = 'https://nywusbbvowpeurtieilj.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55d3VzYmJ2b3dwZXVydGllaWxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MDI0NjAsImV4cCI6MjA4OTM3ODQ2MH0.urseR75-_FIwhfrHjl8jvYOGgGHyBNehY7DHPxp2W9o';
+var SB_READY = false;
+
+async function sbGet(id) {
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/schedule_data?id=eq.${id}&select=data`, {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    const rows = await res.json();
+    return rows.length > 0 ? rows[0].data : null;
+  } catch(e) { return null; }
+}
+
+async function sbSet(id, data) {
+  try {
+    await fetch(`${SB_URL}/rest/v1/schedule_data`, {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ id, data, updated_at: new Date().toISOString() })
+    });
+  } catch(e) {}
+}
+
+// ── localStorage 폴백 포함 저장/로드 ────────────────────────────────────
+function _jobKey(j) { return (j.date||'')+'|'+(j.time||'')+'|'+(j.plate||'')+'|'+(j.model||''); }
+
+function loadJobs() {
+  try {
+    var s = localStorage.getItem(LS_JOBS);
+    if (!s) return JSON.parse(JSON.stringify(DEFAULT_JOBS));
+    var stored = JSON.parse(s);
+    var storedMap = {};
+    stored.forEach(function(j) { storedMap[_jobKey(j)] = j; });
+    return DEFAULT_JOBS.map(function(dj) {
+      var old = storedMap[_jobKey(dj)];
+      if (!old) return dj;
+      return Object.assign({}, dj, {
+        done:      dj.done || old.done,
+        cancelled: dj.cancelled || old.cancelled,
+        note:      old.note !== undefined && old.note !== '' ? old.note : dj.note,
+        region:    old.region !== undefined && old.region !== '' ? old.region : dj.region,
+        parts:     old.parts !== undefined ? old.parts : dj.parts,
+      });
+    });
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_JOBS)); }
+}
+function saveJobs() {
+  try { localStorage.setItem(LS_JOBS, JSON.stringify(JOBS)); } catch(e) {}
+  if (SB_READY) sbSet('jungbi_jobs', JOBS);
+}
+function loadChecked() {
+  try { var s = localStorage.getItem(LS_CHECKED); return s ? JSON.parse(s) : {}; }
+  catch(e) { return {}; }
+}
+function saveChecked() {
+  try { localStorage.setItem(LS_CHECKED, JSON.stringify(checkedState)); } catch(e) {}
+  if (SB_READY) sbSet('jungbi_checked', checkedState);
+}
+
+let JOBS = loadJobs();
+let checkedState = loadChecked();
+
+var LS_PMEMO = 'jungbi_pmemo_' + window._HASH;
+
+function stableMemoKey(ji, pi) {
+  const j = JOBS[ji];
+  if (!j) return `${ji}-${pi}`;
+  const partName = (j.parts && j.parts[pi]) ? j.parts[pi] : pi;
+  return `${j.plate||''}|${j.date||''}|${partName}`;
+}
+function loadPartMemos() {
+  try { var s = localStorage.getItem(LS_PMEMO); return s ? JSON.parse(s) : {}; }
+  catch(e) { return {}; }
+}
+function savePartMemos() {
+  try { localStorage.setItem(LS_PMEMO, JSON.stringify(partMemos)); } catch(e) {}
+  if (SB_READY) sbSet('jungbi_pmemo', partMemos);
+}
+let partMemos = loadPartMemos();
+let currentFilter = 'all';
+let partsOnly = false;
+let editingIndex = null;
+let deletingIndex = null;
+let modalStatus = { done: false, cancel: false };
+let searchQuery = '';
+
+// ── Search ────────────────────────────────────────────────
+function onSearch(val) {
+  searchQuery = val.trim().toLowerCase();
+  document.getElementById('searchClear').classList.toggle('visible', searchQuery.length > 0);
+  const mc = document.getElementById('searchClearMobile');
+  if (mc) mc.classList.toggle('visible', searchQuery.length > 0);
+  renderSchedule();
+}
+function clearSearch() {
+  const si = document.getElementById('searchInput');
+  const sim = document.getElementById('searchInputMobile');
+  if (si) si.value = '';
+  if (sim) sim.value = '';
+  searchQuery = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  const mc = document.getElementById('searchClearMobile');
+  if (mc) mc.classList.remove('visible');
+  renderSchedule();
+}
+function highlight(text, query) {
+  if (!query || !text) return text || '';
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(text).replace(new RegExp('(' + escaped + ')', 'gi'), '<mark class="search-highlight">$1</mark>');
+}
+function jobMatchesSearch(job) {
+  if (!searchQuery) return true;
+  const fields = [job.plate, job.model, job.title, job.phone, job.note, job.region];
+  if (fields.some(f => f && String(f).toLowerCase().includes(searchQuery))) return true;
+  if (job.parts && job.parts.length > 0) {
+    return job.parts.some(part => {
+      const memo = partMemos[`${job.plate||''}|${job.date||''}|${part}`];
+      return memo && memo.toLowerCase().includes(searchQuery);
+    });
+  }
+  return false;
+}
+
+// ── Checked helpers ───────────────────────────────────────
+function stableKey(ji, pi) {
+  const j = JOBS[ji];
+  if (!j) return `${ji}-${pi}`;
+  return `${j.plate||''}|${j.date||''}|${j.time||''}|${pi}`;
+}
+function isChecked(ji, pi) { return !!checkedState[stableKey(ji, pi)]; }
+function setChecked(ji, pi, v) { checkedState[stableKey(ji, pi)] = v; saveChecked(); }
+
+// ── Time format ───────────────────────────────────────────
+function formatTime(t) {
+  if (!t || t === '종일') return '<span class="time-ampm">' + (t || '종일') + '</span>';
+  const m = t.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return '<span class="time-ampm">' + t + '</span>';
+  const h = parseInt(m[1]), min = m[2];
+  let ampm, hour;
+  if (h === 0)       { ampm = '오전'; hour = `12:${min}`; }
+  else if (h < 12)   { ampm = '오전'; hour = `${h}:${min}`; }
+  else if (h === 12) { ampm = '오후'; hour = `12:${min}`; }
+  else               { ampm = '오후'; hour = `${h - 12}:${min}`; }
+  const cls = ampm === '오전' ? 'time-am' : 'time-pm';
+  return `<span class="${cls}">${ampm}</span>\n${hour}`;
+}
+
+// ── Sort ─────────────────────────────────────────────────
+function sortKey(j) {
+  try {
+    const [m,d] = j.date.split('/');
+    const [h,mn] = j.time && j.time.includes(':') ? j.time.split(':') : ['99','0'];
+    return parseInt(m)*100000 + parseInt(d)*1000 + parseInt(h)*10 + parseInt(mn);
+  } catch(e) { return 9999999; }
+}
+function sortJobs() { JOBS.sort((a,b) => sortKey(a) - sortKey(b)); }
+
+// ── Clock ─────────────────────────────────────────────────
+function getNow() { return new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'})); }
+function getTodayStr() { const n = getNow(); return `${n.getMonth()+1}/${n.getDate()}`; }
+function updateClock() {
+  const now = getNow();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const ss = String(now.getSeconds()).padStart(2,'0');
+  const yyyy = now.getFullYear();
+  const mo = String(now.getMonth()+1).padStart(2,'0');
+  const dd = String(now.getDate()).padStart(2,'0');
+  document.getElementById('clockTime').innerHTML = `${formatTime(`${hh}:${mm}`)}:${ss}`;
+  document.getElementById('clockDate').textContent = `${yyyy}.${mo}.${dd} (${DAY_KO[now.getDay()]})`;
+  const hdr = document.getElementById('headerMonth');
+  if (hdr) hdr.textContent = `${yyyy}년 ${now.getMonth()+1}월`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function getDayName(dateStr) {
+  try {
+    const [m,d] = dateStr.split('/');
+    const dt = new Date(2026, parseInt(m)-1, parseInt(d));
+    return DAY_KO[dt.getDay()];
+  } catch(e) { return ''; }
+}
+
+// ── Filter buttons ────────────────────────────────────────
+function rebuildFilters() {
+  const seen = [];
+  JOBS.forEach(j => { if (!seen.includes(j.date)) seen.push(j.date); });
+  seen.sort((a,b) => sortKey({date:a,time:'00:00'}) - sortKey({date:b,time:'00:00'}));
+  const c = document.getElementById('filterBtns');
+  c.innerHTML = `<button class="filter-btn ${currentFilter==='all'?'active':''}" onclick="filterJobs('all',this)">전체</button>`;
+  seen.forEach(date => {
+    const [m,d] = date.split('/');
+    const active = currentFilter === date ? ' active' : '';
+    c.innerHTML += `<button class="filter-btn${active}" onclick="filterJobs('${date}',this)">${m}/${d} (${getDayName(date)})</button>`;
+  });
+}
+
+// ── Render ────────────────────────────────────────────────
+function renderSchedule() {
+  sortJobs();
+  rebuildFilters();
+  const container = document.getElementById('scheduleContainer');
+  container.innerHTML = '';
+  const totalVisible = JOBS.filter(j => jobMatchesSearch(j)).length;
+  if (searchQuery && totalVisible === 0) {
+    container.innerHTML = '<div class="search-empty"><b>"' + searchQuery + '"</b> 검색 결과가 없습니다.</div>';
+    return;
+  }
+  const byDate = {};
+  JOBS.forEach((job,i) => {
+    if (!byDate[job.date]) byDate[job.date] = [];
+    byDate[job.date].push(i);
+  });
+  const dates = Object.keys(byDate).sort((a,b) => sortKey({date:a,time:'0'}) - sortKey({date:b,time:'0'}));
+  const todayStr = getTodayStr();
+
+  dates.forEach((date, di) => {
+    if (currentFilter !== 'all' && date !== currentFilter) return;
+    const indices = byDate[date];
+    // partsOnly: 해당 날짜에 발주부품 있는 카드가 없으면 날짜 섹션 통째로 숨김
+    if (partsOnly) {
+      const hasPartsInDate = indices.some(i => {
+        const j = JOBS[i];
+        return j.parts && j.parts.length > 0 && !j.done && !j.cancelled;
+      });
+      if (!hasPartsInDate) return;
+    }
+    const filteredIndices = indices.filter(ji => jobMatchesSearch(JOBS[ji]));
+    if (filteredIndices.length === 0) return;
+    const activeCount = filteredIndices.filter(i => !JOBS[i].done && !JOBS[i].cancelled).length;
+    const [m,d] = date.split('/');
+    const isToday = date === todayStr;
+    const section = document.createElement('div');
+    section.className = 'day-section';
+    section.innerHTML = `<div class="day-header"><span class="day-label${isToday?' today':''}">${m}월 ${d}일 (${getDayName(date)})</span><span class="day-count">${activeCount}건</span></div>`;
+
+    indices.forEach(ji => {
+      const job = JOBS[ji];
+      if (!jobMatchesSearch(job)) return;
+      if (partsOnly && !(job.parts && job.parts.length > 0)) return;
+      const card = document.createElement('div');
+      card.className = 'job-card'+(job.done?' is-done':'')+(job.cancelled?' is-cancelled':'');
+      const endStr = job.endDate ? `<br><span style="font-size:13px;opacity:.5">→${job.endDate}</span>` : '';
+      const badge = job.cancelled ? '<span class="status-badge badge-cancel">취소</span>' : job.done ? '<span class="status-badge badge-done">완료</span>' : '';
+      const noteHtml = job.note ? `<div class="job-note">${highlight(job.note, searchQuery)}</div>` : '';
+      const phoneHtml = job.phone ? `<div class="phone">${highlight(job.phone, searchQuery)}</div>` : '';
+      const mc = getModelColor(job.model);
+      const _isUnknownModel = !job.model || job.model.trim() === ''
+        || mc.border === 'rgba(79,127,255,0.35)';
+      const alertIcon = _isUnknownModel ? ALERT_SVG : '';
+      const vinHtml = job.region ? (() => {
+        const v = job.region;
+        const prefix = v.length > 7 ? v.slice(0, v.length - 7) : '';
+        const suffix = v.length > 7 ? v.slice(-7) : v;
+        return `<span class="vin">${prefix}<span class="vin-highlight">${suffix}</span></span>`;
+      })() : '';
+      let partsHtml = '';
+      if (job.parts && job.parts.length > 0) {
+        const rows = job.parts.map((part,pi) => {
+          const chk = isChecked(ji,pi) ? ' checked' : '';
+          const memo = partMemos[stableMemoKey(ji, pi)] || '';
+          const hasMemo = memo.length > 0;
+          return `<div>
+            <div class="part-row${chk}" id="p-${ji}-${pi}">
+              <div class="cb-box" onclick="togglePart(${ji},${pi})">${CHECK_SVG}</div>
+              <span class="part-label" onclick="togglePart(${ji},${pi})">${part}</span>
+              <button class="part-memo-btn${hasMemo?' has-memo':''}" id="pmb-${ji}-${pi}" onclick="togglePartMemo(${ji},${pi})" title="메모">${NOTE_SVG}</button>
+            </div>
+            <div class="part-memo-wrap${hasMemo?' always':''}" id="pmw-${ji}-${pi}">
+              ${hasMemo
+                ? `<div class="part-memo-text" id="pmt-${ji}-${pi}" onclick="editPartMemo(${ji},${pi})">↳ ${memo}</div>`
+                : `<input class="part-memo-input" id="pmi-${ji}-${pi}" placeholder="발주 메모 입력..." value="${memo}" onblur="savePartMemo(${ji},${pi})" onkeydown="if(event.key==='Enter')this.blur()">`
+              }
+            </div>
+          </div>`;
+        }).join('');
+        partsHtml = `<div class="parts-block"><div class="parts-block-label">발주 부품</div>${rows}</div>`;
+      }
+      card.innerHTML = `${badge}
+        <div class="time-col">${formatTime(job.time)}${endStr}</div>
+        <div class="job-body">
+          <div class="job-top">
+            ${alertIcon}<span class="car-model" style="background:${mc.bg};border-color:${mc.border};color:${mc.text}">${highlight(displayModel(job.model), searchQuery)||''}</span>
+            <span class="plate">${highlight(job.plate, searchQuery)||''}</span>
+            ${vinHtml}
+          </div>
+          <div class="job-title">${highlight(job.title, searchQuery)||''}</div>
+          ${noteHtml}${phoneHtml}${partsHtml}
+        </div>
+        <div class="card-actions">
+          <button class="btn-icon" onclick="openModal(${ji})">${PENCIL_SVG}</button>
+          <button class="btn-icon btn-del" onclick="askDelete(${ji})">${TRASH_SVG}</button>
+        </div>`;
+      section.appendChild(card);
+    });
+    container.appendChild(section);
+    if (di < dates.length-1) {
+      const div = document.createElement('div'); div.className='section-divider'; container.appendChild(div);
+    }
+  });
+
+  const active = JOBS.filter(j=>!j.done&&!j.cancelled).length;
+  document.getElementById('totalCount').textContent = active;
+  updateProgress();
+  buildSummary();
+  buildSidePanels();
+}
+
+// ── Part toggle ───────────────────────────────────────────
+function togglePart(ji, pi) {
+  const val = !isChecked(ji, pi);
+  setChecked(ji, pi, val);
+  const el = document.getElementById(`p-${ji}-${pi}`);
+  if (el) el.classList.toggle('checked', val);
+  updateProgress();
+  updateSummaryRow(ji);
+}
+
+// ── Progress / Summary ────────────────────────────────────
+function updateProgress() {
+  // 사이드바 부품발주 패널 제거됨 — 함수 유지 (togglePart 호출용)
+}
+
+// ── 부품 메모 ────────────────────────────────────────────────────────────
+function togglePartMemo(ji, pi) {
+  const wrap = document.getElementById(`pmw-${ji}-${pi}`);
+  if (!wrap) return;
+  const memo = partMemos[stableMemoKey(ji, pi)] || '';
+  if (memo) {
+    // 메모 있으면 편집 모드로 전환
+    editPartMemo(ji, pi);
+  } else {
+    // 메모 없으면 입력창 토글
+    const isOpen = wrap.classList.toggle('open');
+    if (isOpen) {
+      const inp = document.getElementById(`pmi-${ji}-${pi}`);
+      if (inp) setTimeout(() => inp.focus(), 50);
+    }
+  }
+}
+function savePartMemo(ji, pi) {
+  const inp = document.getElementById(`pmi-${ji}-${pi}`);
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (val) {
+    partMemos[stableMemoKey(ji, pi)] = val;
+  } else {
+    delete partMemos[stableMemoKey(ji, pi)];
+  }
+  savePartMemos();
+  renderSchedule(); // 저장 후 재렌더 → 메모 있으면 always로 항상 표시
+}
+function editPartMemo(ji, pi) {
+  // 메모 텍스트 클릭 → 편집 모드
+  const wrap = document.getElementById(`pmw-${ji}-${pi}`);
+  const memo = partMemos[stableMemoKey(ji, pi)] || '';
+  wrap.innerHTML = `<input class="part-memo-input" id="pmi-${ji}-${pi}" placeholder="발주 메모 입력..." value="${memo}" onblur="savePartMemo(${ji},${pi})" onkeydown="if(event.key==='Enter')this.blur()">`;
+  wrap.classList.add('open');
+  setTimeout(() => {
+    const inp = document.getElementById(`pmi-${ji}-${pi}`);
+    if (inp) { inp.focus(); inp.select(); }
+  }, 30);
+}
+function buildSummary() {
+  // 사이드바 부품발주 패널 제거됨
+}
+function updateSummaryRow(ji) {
+  // 사이드바 부품발주 패널 제거됨
+}
+
+// ── 사이드바 패널들 ────────────────────────────────────────────────────
+function buildSidePanels() {
+  const now = getNow();
+  const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  function parseDate(str) {
+    if (!str) return null;
+    const [m,d] = str.split('/');
+    return new Date(2026, parseInt(m)-1, parseInt(d));
+  }
+  // 장기 입고: endDate 있고 완료/취소 아닌 것, 입고 경과일 기준 내림차순
+  const longStay = JOBS.filter(j => j.endDate && !j.cancelled && !j.done).map(j => {
+    const start = parseDate(j.date);
+    const end   = parseDate(j.endDate);
+    const days  = start ? Math.floor((todayDate - start) / 86400000) : 0;
+    return {...j, days, endDateObj: end};
+  }).filter(j => j.days >= 0 && j.endDateObj && j.endDateObj >= todayDate)
+    .sort((a,b) => b.days - a.days);
+
+  document.getElementById('longCount').textContent = longStay.length + '건';
+  const lList = document.getElementById('longList');
+  if (longStay.length === 0) {
+    lList.innerHTML = '<div style="padding:8px 4px;font-size:13px;color:var(--text-muted)">현재 장기 입고 없음</div>';
+  } else {
+    lList.innerHTML = longStay.map((j, idx) => {
+      const mc  = getModelColor(j.model);
+      const end = j.endDateObj;
+      const dLeft = end ? Math.ceil((end - todayDate) / 86400000) : null;
+      const dayCls = j.days >= 7 ? 'warn' : j.days >= 3 ? 'caution' : 'ok';
+      const ddCls  = dLeft !== null ? (dLeft <= 1 ? 'warn' : dLeft <= 3 ? 'caution' : 'ok') : 'ok';
+      const ddLabel = dLeft === null ? '' : dLeft > 0 ? `D-${dLeft} 출고예정` : dLeft === 0 ? 'D-Day 출고' : '출고일 경과';
+      const phoneRow = j.phone ? `<div class="long-card-expand-row"><b>연락처</b> ${j.phone}</div>` : '';
+      const vinRow   = j.region? `<div class="long-card-expand-row"><b>차대번호</b> ${j.region}</div>` : '';
+      const noteRow  = j.note  ? `<div class="long-card-expand-row"><b>메모</b> ${j.note}</div>` : '';
+      const partsRow = ''; // 발주부품 사이드바 미표시
+      return `<div class="long-card" id="lc-${idx}" onclick="toggleLongCard(${idx})">
+        <div class="long-card-top">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="long-card-model" style="background:${mc.bg};border-color:${mc.border};color:${mc.text}">${displayModel(j.model)||''}</span>
+            <span class="long-card-plate">${j.plate||''}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="long-card-days ${dayCls}">${j.days}일째</span>
+            <span class="long-card-chevron">▼</span>
+          </div>
+        </div>
+        <div class="long-card-title">${j.title||''}</div>
+        <div class="long-card-dates">${j.date} → ${j.endDate}</div>
+        ${ddLabel ? `<div class="long-card-dday ${ddCls}">${ddLabel}</div>` : ''}
+        <div class="long-card-expand" id="lce-${idx}">
+          ${noteRow}${phoneRow}${vinRow}${partsRow}
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+
+// ── 장기입고 카드 토글 ───────────────────────────────────
+function toggleLongCard(idx) {
+  const card = document.getElementById('lc-' + idx);
+  const body = document.getElementById('lce-' + idx);
+  if (!card || !body) return;
+  const isOpen = body.classList.toggle('open');
+  card.classList.toggle('open', isOpen);
+}
+
+// ── Filter ────────────────────────────────────────────────
+// ── ICS 파일 불러오기 ────────────────────────────────────────────────────
+var LS_LAST_UPDATED = 'jungbi_last_updated';
+
+function showLastUpdated() {
+  try {
+    const v = localStorage.getItem(LS_LAST_UPDATED);
+    const el = document.getElementById('lastUpdated');
+    if (v && el) el.innerHTML = '최종갱신 <b>' + v + '</b>';
+  } catch(e) {}
+}
+
+
+function showLastUpdated(ts) {
+  const el = document.getElementById('lastUpdated');
+  if (el && ts) el.innerHTML = `최종 갱신 <b>${ts}</b>`;
+}
+
+async function mergeAndUpdate(newJobs) {
+  const jobKey = _jobKey;
+
+  // Supabase에서 최신 데이터 먼저 가져옴 (다른 기기 수정사항 포함)
+  let baseJobs = JOBS;
+  let baseChecked = checkedState;
+  let baseMemos = partMemos;
+  try {
+    const [sbJobs, sbChecked, sbMemos] = await Promise.all([
+      sbGet('jungbi_jobs'),
+      sbGet('jungbi_checked'),
+      sbGet('jungbi_pmemo'),
+    ]);
+    if (sbJobs && sbJobs.length > 0) baseJobs = sbJobs;
+    if (sbChecked) baseChecked = Object.assign({}, checkedState, sbChecked);
+    if (sbMemos) baseMemos = Object.assign({}, partMemos, sbMemos);
+  } catch(e) {}
+
+  // 최신 Supabase 데이터 기준으로 체크 반영
+  checkedState = baseChecked;
+
+  // 새 ICS 기준으로 병합 (Supabase의 완료/취소/메모/차대번호/부품 유지)
+  const oldMap = {};
+  baseJobs.forEach(j => { oldMap[jobKey(j)] = j; });
+
+  const merged = newJobs.map(nj => {
+    const old = oldMap[jobKey(nj)];
+    if (!old) return nj;
+    return {
+      ...nj,
+      // ICS의 done(X-NAVER-COMPLETED)이 true면 우선 적용
+      // DB의 done이 true면 그것도 유지 (수동 완료 처리 보존)
+      done:      nj.done || old.done,
+      // ICS의 cancelled('취소' 포함) 또는 DB의 cancelled 중 하나라도 true면 유지
+      cancelled: nj.cancelled || old.cancelled,
+      note:      old.note !== undefined && old.note !== '' ? old.note : nj.note,
+      region:    old.region !== undefined && old.region !== '' ? old.region : nj.region,
+      parts:     old.parts !== undefined ? old.parts : nj.parts,
+    };
+  });
+
+  JOBS = merged;
+  saveJobs();
+  partMemos = baseMemos;
+  try { localStorage.setItem(LS_CHECKED, JSON.stringify(checkedState)); } catch(e) {}
+  try { localStorage.setItem(LS_PMEMO, JSON.stringify(partMemos)); } catch(e) {}
+  if (SB_READY) {
+    sbSet('jungbi_checked', checkedState);
+    sbSet('jungbi_pmemo', partMemos);
+  }
+
+  // ── ICS 갱신 후 partMemos 정리 ────────────────────────────────────────
+  // ICS 날짜 범위 기준: 가장 빠른 날짜 -30일 ~ 가장 늦은 날짜 +30일 사이만 보존
+  try {
+    const jobDates = JOBS.map(j => {
+      const parts = (j.date || '').split('/');
+      if (parts.length === 2) {
+        const now = new Date();
+        return new Date(now.getFullYear(), parseInt(parts[0]) - 1, parseInt(parts[1]));
+      }
+      return null;
+    }).filter(Boolean);
+
+    if (jobDates.length > 0) {
+      const minJobDate = new Date(Math.min(...jobDates.map(d => d.getTime())));
+      const maxJobDate = new Date(Math.max(...jobDates.map(d => d.getTime())));
+
+      const cutoffStart = new Date(minJobDate);
+      cutoffStart.setDate(cutoffStart.getDate() - 30);
+
+      const cutoffEnd = new Date(maxJobDate);
+      cutoffEnd.setDate(cutoffEnd.getDate() + 30);
+
+      let memosCleaned2 = false;
+      Object.keys(partMemos).forEach(k => {
+        if (!k.includes('|')) return;
+        const datePart = k.split('|')[1] || '';
+        const dp = datePart.split('/');
+        if (dp.length !== 2) return;
+        const now = new Date();
+        const memoDate = new Date(now.getFullYear(), parseInt(dp[0]) - 1, parseInt(dp[1]));
+        if (memoDate < cutoffStart || memoDate > cutoffEnd) {
+          delete partMemos[k];
+          memosCleaned2 = true;
+        }
+      });
+
+      if (memosCleaned2) {
+        try { localStorage.setItem(LS_PMEMO, JSON.stringify(partMemos)); } catch(e) {}
+        sbSet('jungbi_pmemo', partMemos);
+        console.log(
+          '✅ partMemos 정리 완료.',
+          '보존 범위:', cutoffStart.toLocaleDateString(), '~', cutoffEnd.toLocaleDateString(),
+          '/ 남은 키:', Object.keys(partMemos).length
+        );
+      }
+    }
+  } catch(e) {
+    console.warn('partMemos 정리 중 오류:', e);
+  }
+
+  renderSchedule();
+}
+
+// ── ICS 텍스트 파서 (Python과 동일한 로직) ────────────────────────────
+function parseICSText(text) {
+  // line folding 처리 (CRLF + space/tab)
+  text = text.split('\r\n ').join('').split('\r\n\t').join('');
+  text = text.split('\n ').join('').split('\n\t').join('');
+  const lines = text.split(/\r\n|\n|\r/);
+  const events = [];
+  let current = null;
+  for (const line of lines) {
+    const l = line.trim();
+    if (l === 'BEGIN:VEVENT') { current = {}; }
+    else if (l === 'END:VEVENT') { if (current) events.push(current); current = null; }
+    else if (current && l.includes(':')) {
+      const sep = l.indexOf(':');
+      const key = l.slice(0, sep).split(';')[0].toUpperCase();
+      if (!(key in current)) current[key] = l.slice(sep + 1).trim();
+    }
+  }
+  const seen = new Set();
+  const jobs = [];
+  for (const ev of events) {
+    const summary = cleanText(ev['SUMMARY'] || '');
+    if (!summary || summary.includes('청소 시간')) continue;
+    const dedup = (ev['UID'] || '') + (ev['RECURRENCE-ID'] || '');
+    if (seen.has(dedup)) continue;
+    seen.add(dedup);
+    const [dateStr, timeStr] = parseDtStr(ev['DTSTART'] || '');
+    let [endDateStr] = parseDtStr(ev['DTEND'] || '');
+    if (endDateStr === dateStr) endDateStr = '';
+    if (!dateStr) continue;
+    const cancelled = summary.includes('취소');
+    const done = !!(ev['X-NAVER-COMPLETED']);
+    const desc = cleanText(ev['DESCRIPTION'] || '');
+    const { model, plate, title } = parseSummary(summary);
+    const parts = extractParts(title);
+    jobs.push({ date: dateStr, endDate: endDateStr, time: timeStr || '종일',
+      model, plate, region: '', title, parts, phone: '', note: desc,
+      done, cancelled });
+  }
+  jobs.sort((a, b) => sortKey(a) - sortKey(b));
+  return jobs;
+}
+function cleanText(t) {
+  return t.replace(/\\\\,/g, ',').replace(/\\,/g, ',').replace(/\\n/g, ' ').replace(/\\;/g, ';').replace(/\r/g, '').trim();
+}
+
+function parseDtStr(s) {
+  s = (s || '').trim();
+  if (s.includes(':')) s = s.split(':').pop();
+  if (s.includes('T')) {
+    const y=s.slice(0,4), mo=s.slice(4,6), d=s.slice(6,8), h=s.slice(9,11), mi=s.slice(11,13);
+    return [`${parseInt(mo)}/${parseInt(d)}`, `${h}:${mi}`];
+  } else if (s.length >= 8) {
+    const mo=s.slice(4,6), d=s.slice(6,8);
+    return [`${parseInt(mo)}/${parseInt(d)}`, '종일'];
+  }
+  return ['', ''];
+}
+
+function parseSummary(summary) {
+  let s = summary;
+  // 전화번호 제거
+  s = s.replace(/0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{4}/g, '').trim();
+  // 모델
+  const modelM = s.match(/^([A-Z]\d+[a-z]*d?)/);
+  const model = modelM ? modelM[1] : '';
+  if (model) s = s.slice(model.length).replace(/^\./, '');
+  // 번호판
+  const plateM = s.match(/\d{2,3}[가-힣]\d{4}|\d{3,4}[가-힣]{1,2}\d{4}|[가-힣]{2}\d{4}/);
+  const plate = plateM ? plateM[0].trim() : '';
+  if (plate) s = s.replace(plate, '');
+  // 괄호 제거
+  s = s.replace(/[(（][^)）\n]{1,15}[)）]/g, '').replace(/^[\s.,\-]+/, '').replace(/[\s.,\-]+$/, '').replace(/\s{2,}/g, ' ').trim();
+  return { model, plate, title: s };
+}
+
+const PART_KEYWORDS = ['마운트세트','마운트 세트','엔진마운트','타이밍체인커버','타이밍 체인 커버','타이밍커버','워터펌프어셈블리','워터펌프 어셈블리','워터펌프','댐퍼풀리세트','댐퍼풀리 세트','댐퍼풀리','오일필터하우징','오일필터','오일팬','터보인테이크가스켓','터보 인테이크 가스켓','터보어셈블리','터보파이프','터보재생','벨트세트','환기파이프','로워암부싱세트','앞 부싱','앞부싱','부싱세트','볼조인트','허브베어링','쇼바마운트','인터쿨러파이프','플러그씰','브레이크액','브레이크 액','브레이크패드','브레이크 패드','도어록','휠센서','앞휠센서','윈드실드커버','에어필터','헤드개스킷','클러치','링크','부싱','오일압력제어밸브'];
+const PART_BLACKLIST = ['엔진오일','엔진 오일','미션오일','미션 오일','DCT미션오일','DCT 미션오일','에어컨필터','에어컨 필터','배터리','브레이크','앞패드','앞 패드','뒤패드','뒤 패드'];
+
+function extractParts(title) {
+  const found = [];
+  const tl = title.toLowerCase();
+  for (const kw of PART_KEYWORDS) {
+    if (tl.includes(kw.toLowerCase())) {
+      if (PART_BLACKLIST.some(bl => bl.toLowerCase().includes(kw.toLowerCase()) || kw.toLowerCase().includes(bl.toLowerCase()))) continue;
+      if (!found.some(f => f.toLowerCase().includes(kw.toLowerCase()) || kw.toLowerCase().includes(f.toLowerCase()))) {
+        found.push(kw);
+      }
+    }
+  }
+  return found;
+}
+
+function filterBlacklistFromParts(parts) {
+  if (!Array.isArray(parts)) return parts;
+  return parts.filter(p => !PART_BLACKLIST.some(bl =>
+    bl.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(bl.toLowerCase())
+  ));
+}
+
+// 갱신 시간 초기화
+(function() {
+  let ts = '';
+  try { ts = localStorage.getItem('jungbi_last_updated') || ''; } catch(e) {}
+  if (ts) showLastUpdated(ts);
+  // Supabase에서도 갱신 시간 로드
+  sbGet('jungbi_last_updated').then(t => { if (t) { showLastUpdated(t); try { localStorage.setItem('jungbi_last_updated', t); } catch(e) {} } }).catch(()=>{});
+})();
+
+function loadICSFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const raw = e.target.result;
+    const jobs = parseICSText(raw);
+    if (jobs.length === 0) {
+      alert('일정을 찾을 수 없어요. ICS 파일을 확인해주세요.');
+      return;
+    }
+    mergeAndUpdate(jobs);
+    const now = getNow();
+    const ts = now.getFullYear() + '.' + String(now.getMonth()+1).padStart(2,'0') + '.' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    try { localStorage.setItem('jungbi_last_updated', ts); } catch(e) {}
+    if (SB_READY) sbSet('jungbi_last_updated', ts);
+    showLastUpdated(ts);
+    alert(jobs.length + '개 일정 갱신 완료!');
+  };
+  reader.readAsText(file, 'utf-8');
+  input.value = '';
+}
+
+function togglePartsOnly() {
+  partsOnly = !partsOnly;
+  const btn = document.getElementById('partsToggleBtn');
+  if (btn) btn.classList.toggle('active', partsOnly);
+  renderSchedule();
+}
+
+function filterJobs(date, btn) {
+  currentFilter = date;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSchedule();
+}
+
+
+// ── Modal ─────────────────────────────────────────────────
+function openModal(ji) {
+  editingIndex = ji !== undefined ? ji : null;
+  const job = ji !== undefined ? JOBS[ji] : null;
+  document.getElementById('modalTitle').textContent = job ? '일정 수정' : '일정 추가';
+  document.getElementById('f-date').value    = job ? job.date : '';
+  document.getElementById('f-endDate').value = job ? (job.endDate||'') : '';
+  document.getElementById('f-time').value    = job ? job.time : '';
+  document.getElementById('f-model').value   = job ? job.model : '';
+  document.getElementById('f-plate').value   = job ? job.plate : '';
+  document.getElementById('f-region').value  = job ? job.region : '';
+  document.getElementById('f-title').value   = job ? job.title : '';
+  document.getElementById('f-phone').value   = job ? job.phone : '';
+  document.getElementById('f-note').value    = job ? job.note : '';
+  modalStatus = { done: job?job.done:false, cancel: job?job.cancelled:false };
+  refreshStatusToggles();
+  renderPartsEditor(job ? (job.parts||[]) : []);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+function renderPartsEditor(parts) {
+  const editor = document.getElementById('partsEditor');
+  editor.innerHTML = '';
+  parts.forEach((p,i) => {
+    const row = document.createElement('div'); row.className='parts-editor-item';
+    row.innerHTML=`<input type="text" value="${p}" placeholder="부품명" id="part-field-${i}"><button class="btn-remove-part" onclick="removePartField(${i})"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M5.72 5.72a.75.75 0 0 1 1.06 0L12 10.94l5.22-5.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L13.06 12l5.22 5.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L12 13.06l-5.22 5.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L10.94 12 5.72 6.78a.75.75 0 0 1 0-1.06Z"></path></svg></button>`;
+    editor.appendChild(row);
+  });
+}
+function addPartField() {
+  const editor = document.getElementById('partsEditor');
+  const idx = editor.children.length;
+  const row = document.createElement('div'); row.className='parts-editor-item';
+  row.innerHTML=`<input type="text" placeholder="부품명" id="part-field-${idx}"><button class="btn-remove-part" onclick="removePartField(${idx})"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M5.72 5.72a.75.75 0 0 1 1.06 0L12 10.94l5.22-5.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L13.06 12l5.22 5.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L12 13.06l-5.22 5.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L10.94 12 5.72 6.78a.75.75 0 0 1 0-1.06Z"></path></svg></button>`;
+  editor.appendChild(row);
+  row.querySelector('input').focus();
+}
+function removePartField(i) {
+  const editor = document.getElementById('partsEditor');
+  const items = editor.querySelectorAll('.parts-editor-item');
+  if(items[i]) items[i].remove();
+  editor.querySelectorAll('.parts-editor-item').forEach((row,ni) => {
+    row.querySelector('input').id = `part-field-${ni}`;
+    row.querySelector('button').setAttribute('onclick',`removePartField(${ni})`);
+  });
+}
+function getParts() {
+  return Array.from(document.getElementById('partsEditor').querySelectorAll('input'))
+    .map(inp=>inp.value.trim()).filter(v=>v);
+}
+function toggleStatus(type) {
+  if(type==='done') { modalStatus.done = !modalStatus.done; if(modalStatus.done) modalStatus.cancel=false; }
+  else { modalStatus.cancel = !modalStatus.cancel; if(modalStatus.cancel) modalStatus.done=false; }
+  refreshStatusToggles();
+}
+function refreshStatusToggles() {
+  document.getElementById('toggle-done').className = 'toggle-btn'+(modalStatus.done?' active-done':'');
+  document.getElementById('toggle-cancel').className = 'toggle-btn'+(modalStatus.cancel?' active-cancel':'');
+}
+function saveJob() {
+  const date = document.getElementById('f-date').value.trim();
+  if(!date) { alert('날짜를 입력해주세요.'); return; }
+  const job = {
+    date, endDate:document.getElementById('f-endDate').value.trim(),
+    time:document.getElementById('f-time').value.trim()||'종일',
+    model:document.getElementById('f-model').value.trim(),
+    plate:document.getElementById('f-plate').value.trim(),
+    region:document.getElementById('f-region').value.trim(),
+    title:document.getElementById('f-title').value.trim(),
+    phone:document.getElementById('f-phone').value.trim(),
+    note:document.getElementById('f-note').value.trim(),
+    parts:getParts(), done:modalStatus.done, cancelled:modalStatus.cancel,
+  };
+  if(editingIndex!==null) JOBS[editingIndex]=job; else JOBS.push(job);
+  saveJobs(); closeModal(); renderSchedule();
+}
+
+// ── Delete ────────────────────────────────────────────────
+function askDelete(ji) {
+  deletingIndex = ji;
+  const job = JOBS[ji];
+  document.getElementById('confirmMsg').textContent = `"${job.model} ${job.plate}" 일정을 삭제할까요?`;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); deletingIndex=null; }
+function confirmDelete() { if(deletingIndex===null) return; JOBS.splice(deletingIndex,1); saveJobs(); closeConfirm(); renderSchedule(); }
+
+// ── Theme ─────────────────────────────────────────────────
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  try{localStorage.setItem('jungbi_theme', isLight?'light':'dark');}catch(e){}
+  document.getElementById('themeBtn').innerHTML = isLight ? MOON_SVG : SUN_SVG;
+}
+function initTheme() {
+  var saved = ''; try{saved=localStorage.getItem('jungbi_theme')||'';}catch(e){}
+  const isLight = saved === 'light';
+  if(isLight) document.documentElement.classList.add('light');
+  document.getElementById('themeBtn').innerHTML = isLight ? MOON_SVG : SUN_SVG;
+}
+
+// ── Init ──────────────────────────────────────────────────
+// ── 비밀번호 보호 ────────────────────────────────────────────────────────
+async function hashPw(pw) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+const PW_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // 1234
+
+async function checkPw() {
+  const val = document.getElementById('pwInput').value;
+  const h = await hashPw(val);
+  if (h === PW_HASH) {
+    sessionStorage.setItem('jungbi_auth', '1');
+    document.getElementById('pw-screen').style.display = 'none';
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+
+// 이미 인증된 경우 바로 통과
+if (sessionStorage.getItem('jungbi_auth') === '1') {
+  document.getElementById('pw-screen').style.display = 'none';
+} else {
+  // 인증 전에는 메인 렌더 막기
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('pwInput').focus();
+  });
+}
+
+initTheme();
+
+showLastUpdated();
+
+// ── Supabase에서 데이터 불러오기 후 렌더 ────────────────────────────────
+(async function initFromSupabase() {
+  // Supabase 로드 완료 전에는 렌더하지 않음 (타이밍 버그 방지)
+  try {
+    const [sbJobs, sbChecked, sbMemos] = await Promise.all([
+      sbGet('jungbi_jobs'),
+      sbGet('jungbi_checked'),
+      sbGet('jungbi_pmemo'),
+    ]);
+
+    if (sbJobs) {
+      const jobKey = _jobKey;
+      const sbMap = {};
+      sbJobs.forEach(j => { sbMap[jobKey(j)] = j; });
+      // 새 ICS(DEFAULT_JOBS) 우선, 사용자 편집값(done/cancelled/note/region/parts)은 Supabase 우선
+      const merged = DEFAULT_JOBS.map(dj => {
+        const sb = sbMap[jobKey(dj)];
+        if (!sb) return dj;
+        return {
+          ...dj,
+          // ICS의 done(X-NAVER-COMPLETED) 또는 DB의 done 중 하나라도 true면 유지
+          done:      dj.done || sb.done,
+          // ICS의 cancelled('취소') 또는 DB의 cancelled 중 하나라도 true면 유지
+          cancelled: dj.cancelled || sb.cancelled,
+          note:      sb.note !== undefined && sb.note !== '' ? sb.note : dj.note,
+          region:    sb.region !== undefined && sb.region !== '' ? sb.region : dj.region,
+          parts:     sb.parts !== undefined ? filterBlacklistFromParts(sb.parts) : dj.parts,
+        };
+      });
+      JOBS = merged;
+      try { localStorage.setItem(LS_JOBS, JSON.stringify(JOBS)); } catch(e) {}
+    }
+    if (sbChecked) {
+      checkedState = Object.assign({}, checkedState, sbChecked);
+      try { localStorage.setItem(LS_CHECKED, JSON.stringify(checkedState)); } catch(e) {}
+    }
+    if (sbMemos) {
+      partMemos = Object.assign({}, partMemos, sbMemos);
+      try { localStorage.setItem(LS_PMEMO, JSON.stringify(partMemos)); } catch(e) {}
+    }
+
+    SB_READY = true;
+    console.log('Supabase 데이터 로드 완료');
+  } catch(e) {
+    SB_READY = true;
+    console.warn('Supabase 로드 실패, localStorage 사용:', e);
+  }
+
+  // Supabase 로드 완료 후 오늘 날짜 필터 적용 및 첫 렌더 (단 1회)
+  const todayStr = getTodayStr();
+  if (JOBS.some(j => j.date === todayStr)) {
+    currentFilter = todayStr;
+  }
+  renderSchedule();
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

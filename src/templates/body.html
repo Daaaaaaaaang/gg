@@ -1,0 +1,167 @@
+
+<!-- 비밀번호 화면 -->
+<div id="pw-screen">
+  <div class="pw-box">
+    <h2>정비 일정</h2>
+    <p>접근하려면 비밀번호를 입력하세요</p>
+    <input type="password" class="pw-input" id="pwInput" placeholder="••••" maxlength="20"
+      onkeydown="if(event.key==='Enter') checkPw()">
+    <button class="pw-btn" onclick="checkPw()">확인</button>
+    <div class="pw-error" id="pwError">비밀번호가 틀렸습니다</div>
+  </div>
+</div>
+
+<header>
+  <div class="header-row1">
+    <h1>정비 일정 <span id="headerMonth"></span></h1>
+    <div class="search-wrap">
+      <span class="search-icon"></span>
+      <input type="text" id="searchInput" class="search-input" placeholder="번호판, 차종, 작업내용 검색..." oninput="onSearch(this.value)">
+      <button class="search-clear" id="searchClear" onclick="clearSearch()" title="검색 초기화"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5.72 5.72a.75.75 0 0 1 1.06 0L12 10.94l5.22-5.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L13.06 12l5.22 5.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L12 13.06l-5.22 5.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L10.94 12 5.72 6.78a.75.75 0 0 1 0-1.06Z"></path></svg></button>
+    </div>
+    <div class="clock-block">
+      <div class="clock-time" id="clockTime">--:--:--</div>
+      <div class="clock-date" id="clockDate">----.--.-- (-)</div>
+    </div>
+  </div>
+  <div class="header-row2">
+    <div class="stats"><span>전체 <b id="totalCount">-</b>건</span></div>
+    <button class="btn-parts-toggle" id="partsToggleBtn" onclick="togglePartsOnly()" title="발주부품 있는 카드만 보기">발주부품</button>
+    <button class="btn-theme" id="themeBtn" onclick="toggleTheme()" title="다크/라이트 모드 전환"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M14.768 3.96v.001l-.002-.005a9.08 9.08 0 0 0-.218-.779c-.13-.394.21-.8.602-.67.29.096.575.205.855.328l.01.005A10.002 10.002 0 0 1 12 22a10.002 10.002 0 0 1-9.162-5.985l-.004-.01a9.722 9.722 0 0 1-.329-.855c-.13-.392.277-.732.67-.602.257.084.517.157.78.218l.004.002A9 9 0 0 0 14.999 6a9.09 9.09 0 0 0-.231-2.04ZM16.5 6c0 5.799-4.701 10.5-10.5 10.5-.426 0-.847-.026-1.26-.075A8.5 8.5 0 1 0 16.425 4.74c.05.413.075.833.075 1.259Z"></path></svg></button>
+    <button class="btn-workorder" onclick="printWorkOrders()" title="오늘 작업지시서 출력">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    </button>
+    <button class="btn-add" onclick="openModal()">＋ 일정 추가</button>
+  </div>
+  <!-- 모바일 전용 3번째 줄 검색창 -->
+  <div class="header-row3">
+    <span class="search-icon"></span>
+    <input type="text" id="searchInputMobile" class="search-input" placeholder="번호판, 차종, 작업내용 검색..." oninput="onSearch(this.value); document.getElementById('searchInput').value=this.value;">
+    <button class="search-clear" id="searchClearMobile" onclick="clearSearch(); this.classList.remove('visible');" title="검색 초기화"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5.72 5.72a.75.75 0 0 1 1.06 0L12 10.94l5.22-5.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L13.06 12l5.22 5.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L12 13.06l-5.22 5.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L10.94 12 5.72 6.78a.75.75 0 0 1 0-1.06Z"></path></svg></button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="content">
+    <div class="filters" id="filterBtns">
+      <button class="filter-btn active" onclick="filterJobs('all',this)">전체</button>
+    </div>
+    <div id="scheduleContainer"></div>
+  </div>
+  <div class="sidebar">
+    <!-- 장기 입고 -->
+    <div class="sidebar-card">
+      <div class="sb-section-title">장기 입고 현황 <span id="longCount">0건</span></div>
+      <div class="long-list" id="longList"><div style="padding:12px 15px;font-size:11px;color:var(--text-muted)">장기 입고 없음</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2 id="modalTitle">일정 추가</h2>
+    <div class="form-row">
+      <div class="form-group"><label>날짜</label><input type="text" id="f-date" placeholder="3/21"></div>
+      <div class="form-group"><label>종료날짜 (입고 시)</label><input type="text" id="f-endDate" placeholder="3/24 (없으면 빈칸)"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>시간</label><input type="text" id="f-time" placeholder="10:00 또는 종일"></div>
+      <div class="form-group"><label>차종 (모델)</label><input type="text" id="f-model" placeholder="F54"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>번호판</label><input type="text" id="f-plate" placeholder="110마8127"></div>
+      <div class="form-group"><label>차대번호</label><input type="text" id="f-region" placeholder="차대번호 입력"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group"><label>작업 내용</label><input type="text" id="f-title" placeholder="마운트세트3종, 차량점검"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group"><label>연락처</label><input type="text" id="f-phone" placeholder="010-1234-5678"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group"><label>메모</label><textarea id="f-note" placeholder="특이사항 메모"></textarea></div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>발주 부품</label>
+      <div class="parts-editor" id="partsEditor"></div>
+      <button class="btn-add-part" onclick="addPartField()">＋ 부품 추가</button>
+    </div>
+    <div class="form-group" style="margin-bottom:6px;"><label>상태</label></div>
+    <div class="status-toggles">
+      <button class="toggle-btn" id="toggle-done" onclick="toggleStatus('done')">완료</button>
+      <button class="toggle-btn" id="toggle-cancel" onclick="toggleStatus('cancel')">취소</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal()">닫기</button>
+      <button class="btn-save" onclick="saveJob()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p id="confirmMsg">이 일정을 삭제할까요?</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">취소</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

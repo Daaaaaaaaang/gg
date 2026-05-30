@@ -1,0 +1,7 @@
+.env
+calendar.ics
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+sent_log_*.json

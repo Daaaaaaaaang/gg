@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정비 일정 관리</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<script src="https://unpkg.com/@primer/octicons@latest/build/build.js"></script>
+<style>
+  :root {
+    --bg:#0f1117; --surface:#1a1d27; --surface2:#232636; --border:#2e3248;
+    --accent:#4f7fff; --accent2:#ff6b35; --text:#e8eaf0; --text-muted:#6b7294;
+    --green:#3ddc84; --yellow:#ffd166; --red:#ff4d6d;
+  }
+  :root.light {
+    --bg:#f5f6fa; --surface:#ffffff; --surface2:#f0f2f7; --border:#dde1ee;
+    --accent:#3a6ff7; --accent2:#e85d1f; --text:#1a1d2e; --text-muted:#7a82a0;
+    --green:#1cab5e; --yellow:#d4920a; --red:#d63050;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;max-width:100vw;}
+  #pw-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;}
+  .pw-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:36px 32px;width:100%;max-width:340px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.4);}
+  .pw-box h2{font-size:18px;font-weight:700;margin-bottom:6px;}
+  .pw-box p{font-size:13px;color:var(--text-muted);margin-bottom:22px;}
+  .pw-input{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:15px;font-family:inherit;outline:none;text-align:center;letter-spacing:3px;margin-bottom:12px;transition:border-color 0.15s;}
+  .pw-input:focus{border-color:var(--accent);}
+  .pw-btn{width:100%;padding:10px;border-radius:8px;border:none;background:var(--accent);color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity 0.15s;}
+  .pw-btn:hover{opacity:0.85;}
+  .pw-error{font-size:12px;color:var(--red);margin-top:8px;display:none;}
+
+  /* Header */
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:flex-end;position:sticky;top:0;z-index:200;box-shadow:0 1px 8px rgba(0,0,0,0.3);gap:10px;flex-wrap:wrap;}
+  .header-row1{display:contents;}
+  .header-row2{display:contents;}
+  .header-row3{display:none;}
+  header h1{font-size:17px;font-weight:700;white-space:nowrap;margin-right:auto;}
+  header h1 span{color:var(--accent);}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .stats{display:flex;gap:16px;font-family:'Courier New',Courier,monospace;font-size:13px;color:var(--text-muted);}
+  .stats b{color:var(--text);}
+  .clock-block{display:flex;flex-direction:column;align-items:flex-end;gap:1px;border-right:1px solid var(--border);padding-right:14px;margin-right:2px;}
+  .clock-time{font-family:'Courier New',Courier,monospace;font-size:19px;font-weight:500;color:var(--text);letter-spacing:1px;line-height:1.1;}
+  .clock-date{font-family:'Courier New',Courier,monospace;font-size:12px;color:var(--text-muted);letter-spacing:0.3px;}
+  .btn-add{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;padding:0 13px;height:36px;box-sizing:border-box;border-radius:6px;border:none;background:var(--accent);color:white;cursor:pointer;transition:opacity 0.15s;font-family:inherit;}
+  .btn-add:hover{opacity:0.85;}
+  .btn-theme{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;color:var(--text);}
+  .btn-theme svg{width:20px;height:20px;}
+  .btn-theme:hover{border-color:var(--accent);}
+  .btn-parts-toggle{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:0 11px;height:36px;box-sizing:border-box;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all 0.15s;font-family:inherit;white-space:nowrap;}
+  .btn-workorder{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;color:var(--text-muted);}
+  .btn-workorder:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,127,255,0.08);}
+  .btn-workorder svg{width:16px;height:16px;}
+  .btn-parts-toggle:hover{border-color:var(--accent2);color:var(--accent2);}
+  .btn-parts-toggle.active{background:var(--accent2);border-color:var(--accent2);color:white;}
+
+  /* Search */
+  .search-wrap{width:320px;max-width:380px;margin:0 auto 0 16px;position:relative;display:flex;align-items:center;}
+  .search-icon{position:absolute;left:10px;font-size:14px;pointer-events:none;opacity:0.5;}
+  .search-input{width:100%;padding:7px 32px 7px 30px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color 0.15s;}
+  .search-input:focus{border-color:var(--accent);}
+  .search-input::placeholder{color:var(--text-muted);}
+  .search-clear{position:absolute;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;display:none;padding:2px 4px;border-radius:3px;}
+  .search-clear.visible{display:block;}
+  .search-highlight{background:rgba(255,210,0,0.35);border-radius:2px;padding:0 1px;}
+  :root.light .search-highlight{background:rgba(255,170,0,0.3);}
+  .search-empty{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:14px;}
+
+  /* Layout */
+  .main{max-width:1400px;margin:0 auto;padding:24px;display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+  .content{min-width:0;width:100%;overflow:hidden;}
+  #scheduleContainer{width:100%;max-width:100%;overflow:hidden;}
+
+  /* Filters */
+  .filters{display:flex;gap:6px;padding-bottom:18px;flex-wrap:wrap;width:100%;max-width:100%;}
+  .filter-btn{font-size:12px;padding:4px 11px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;transition:all 0.15s;font-family:inherit;white-space:nowrap;}
+  .filter-btn:hover,.filter-btn.active{background:var(--accent);border-color:var(--accent);color:white;}
+  .filter-btn.filter-parts.active{background:var(--accent2);border-color:var(--accent2);color:white;}
+  .filter-btn.filter-parts:hover{background:var(--accent2);border-color:var(--accent2);color:white;}
+
+  /* Day section */
+  .day-section{margin-bottom:24px;width:100%;max-width:100%;overflow:hidden;}
+  .day-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .day-label{font-family:'Courier New',Courier,monospace;font-size:13px;font-weight:500;color:var(--accent);background:rgba(79,127,255,0.1);border:1px solid rgba(79,127,255,0.3);padding:3px 10px;border-radius:4px;}
+  .day-label.today{color:#fff;background:var(--accent);border-color:var(--accent);}
+  .day-label.today::after{content:' · 오늘';font-size:11px;opacity:0.85;}
+  .day-count{font-size:13px;color:var(--text-muted);}
+
+  /* Job card */
+  .job-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:7px;display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:start;transition:border-color 0.2s,box-shadow 0.2s;position:relative;width:100%;box-sizing:border-box;overflow:hidden;}
+  .job-card.is-current{border-left:3px solid var(--accent);padding-left:11px;}
+  .job-card:hover{border-color:rgba(79,127,255,0.4);box-shadow:0 2px 10px rgba(79,127,255,0.12);}
+  .job-card.is-done{opacity:0.45;}
+  .job-card.is-cancelled{opacity:0.4;background:rgba(58,31,31,0.5);border-color:#4a2020;}
+  :root.light .job-card.is-cancelled{background:#fff5f5;border-color:#f5c0c0;}
+  .job-card.is-cancelled .job-title{text-decoration:line-through;}
+  .status-badge{position:absolute;top:8px;right:44px;font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:0.4px;}
+  .badge-cancel{color:var(--red);background:rgba(255,77,109,0.1);border:1px solid rgba(255,77,109,0.3);}
+  .badge-done{color:var(--green);background:rgba(61,220,132,0.1);border:1px solid rgba(61,220,132,0.3);}
+  .time-col{font-family:'Courier New',Courier,monospace;font-size:16px;color:var(--text-muted);padding-top:2px;text-align:center;line-height:1.4;min-width:72px;display:flex;flex-direction:column;align-items:center;word-break:break-word;}
+  .time-end{font-family:'Courier New',Courier,monospace;font-size:12px;color:var(--text-muted);opacity:0.7;text-align:center;margin-top:2px;display:flex;align-items:baseline;gap:2px;justify-content:center;}
+  .time-tilde{opacity:0.8;}
+  .time-am{color:#4a90e2;font-weight:700;font-size:0.85em;}
+  .time-pm{color:#e07b39;font-weight:700;font-size:0.85em;}
+  .time-ampm{color:var(--text-muted);font-size:0.85em;}
+  .job-body{min-width:0;overflow:hidden;overflow-wrap:break-word;word-break:break-word;}
+  .job-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px;max-width:100%;}
+  .job-title{font-size:15px;color:var(--text);line-height:1.5;margin-bottom:2px;overflow-wrap:break-word;word-break:break-word;}
+  .job-note{font-size:12px;color:var(--text-muted);line-height:1.5;background:var(--surface2);border-left:2px solid var(--border);padding:4px 8px;border-radius:0 4px 4px 0;margin-top:4px;overflow-wrap:break-word;word-break:break-word;}
+  .phone{font-family:'Courier New',Courier,monospace;font-size:12px;color:var(--green);margin-top:3px;opacity:0.85;overflow-wrap:break-word;word-break:break-all;}
+
+  /* Car model badge - color by series */
+  .car-model{font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:700;padding:1px 7px;border-radius:3px;border-width:1px;border-style:solid;}
+  .plate{font-family:'Courier New',Courier,monospace;font-size:16px;font-weight:700;color:var(--text);}
+  .vin{font-family:'Courier New',Courier,monospace;font-size:13px;font-weight:700;color:var(--text);background:var(--surface2);border:1px solid var(--border);padding:1px 7px;border-radius:3px;}
+  .vin-highlight{color:var(--red);font-weight:700;font-family:'Courier New',Courier,monospace;}
+
+  /* Parts checkboxes */
+  .parts-block{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+  .parts-block-label{font-size:12px;color:var(--text-muted);font-weight:500;letter-spacing:0.5px;margin-bottom:3px;}
+  .part-row{display:flex;align-items:center;gap:8px;padding:4px 7px;border-radius:5px;cursor:pointer;transition:background 0.12s;user-select:none;}
+  .part-row:hover{background:var(--surface2);}
+  .part-row.checked{opacity:0.4;}
+  .part-row.checked .part-label{text-decoration:line-through;color:var(--text-muted);}
+  .cb-box{width:15px;height:15px;min-width:15px;border:1.5px solid rgba(255,107,53,0.45);border-radius:3px;background:rgba(255,107,53,0.06);display:flex;align-items:center;justify-content:center;transition:all 0.13s;}
+  .part-row.checked .cb-box{background:var(--accent2);border-color:var(--accent2);}
+  .cb-box svg{display:none;width:9px;height:9px;}
+  .part-row.checked .cb-box svg{display:block;}
+  .part-label{font-size:14px;color:var(--accent2);line-height:1.4;flex:1;overflow-wrap:break-word;}
+  .part-memo-btn{background:none;border:none;cursor:pointer;font-size:13px;opacity:0.35;padding:0 2px;line-height:1;transition:opacity 0.13s;flex-shrink:0;color:var(--text-muted);}
+  .part-memo-btn:hover{opacity:0.9;}
+  .part-memo-btn.has-memo{opacity:0.85;color:var(--text);}
+  .part-memo-btn svg{width:17px;height:17px;}
+  .part-memo-wrap{padding:2px 7px 5px 30px;display:none;}
+  .part-memo-wrap.open{display:block;}
+  .part-memo-wrap.always{display:block;}
+  .part-memo-input{width:100%;font-size:13px;font-family:inherit;background:transparent;border:none;border-bottom:1px dashed var(--border);color:var(--text-muted);outline:none;padding:2px 0;line-height:1.5;}
+  .part-memo-input:focus{border-bottom-color:var(--accent);color:var(--text);}
+  .part-memo-input::placeholder{color:var(--border);}
+  .part-memo-text{font-size:13px;color:var(--text-muted);font-style:italic;line-height:1.5;padding:2px 0;cursor:pointer;}
+  .part-memo-text:hover{color:var(--text);}
+
+  /* Card actions */
+  .card-actions{display:flex;flex-direction:column;gap:4px;padding-top:2px;}
+  .btn-icon{width:26px;height:26px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.13s;}
+  .btn-icon svg{width:18px;height:18px;}
+  .btn-icon:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,127,255,0.08);}
+  .btn-icon.btn-del:hover{border-color:var(--red);color:var(--red);background:rgba(255,77,109,0.08);}
+  .section-divider{height:1px;background:var(--border);margin:18px 0;opacity:0.5;}
+
+  /* Sidebar */
+  .sidebar{position:sticky;top:68px;display:flex;flex-direction:column;gap:12px;}
+  .sb-section-title{font-size:14px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;padding:11px 15px 8px;background:var(--surface2);border-bottom:1px solid var(--border);}
+  .sb-section-title span{float:right;color:var(--accent2);font-weight:400;}
+  .undone-list{padding:6px 9px 10px;max-height:200px;overflow-y:auto;}
+  .undone-row{display:flex;align-items:flex-start;justify-content:space-between;padding:5px 7px;border-radius:5px;border-bottom:1px solid rgba(46,50,72,0.4);gap:6px;}
+  .undone-row:last-child{border-bottom:none;}
+  .undone-info{min-width:0;flex:1;}
+  .undone-model{font-family:'Courier New',Courier,monospace;font-size:12px;font-weight:600;}
+  .undone-plate{font-family:'Courier New',Courier,monospace;font-size:11px;color:var(--text);}
+  .undone-title{font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;}
+  .undone-date{font-family:'Courier New',Courier,monospace;font-size:11px;color:var(--text-muted);white-space:nowrap;}
+  .long-list{padding:8px 10px 10px;max-height:65vh;overflow-y:auto;display:flex;flex-direction:column;gap:7px;}
+  .long-card{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 11px;cursor:pointer;transition:border-color 0.15s;}
+  .long-card:hover{border-color:var(--accent);}
+  .long-card-expand{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+  .long-card-expand.open{display:block;}
+  .long-card-expand-row{font-size:13px;color:var(--text-muted);line-height:1.7;}
+  .long-card-expand-row b{color:var(--text);font-weight:600;}
+  .long-card-chevron{font-size:12px;color:var(--text-muted);transition:transform 0.2s;display:inline-block;}
+  .long-card.open .long-card-chevron{transform:rotate(180deg);}
+  .long-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+  .long-card-model{font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:700;padding:1px 6px;border-radius:3px;border-width:1px;border-style:solid;}
+  .long-card-plate{font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:700;color:var(--text);}
+  .long-card-days{font-family:'Courier New',Courier,monospace;font-size:14px;font-weight:700;white-space:nowrap;}
+  .long-card-days.warn{color:var(--red);}
+  .long-card-days.caution{color:var(--yellow);}
+  .long-card-days.ok{color:var(--green);}
+  .long-card-title{font-size:13px;color:var(--text-muted);overflow-wrap:break-word;word-break:break-word;white-space:normal;line-height:1.4;margin-top:2px;}
+  .long-card-dates{font-family:'Courier New',Courier,monospace;font-size:13px;color:var(--text-muted);margin-top:3px;}
+  .long-card-dday{font-family:'Courier New',Courier,monospace;font-size:13px;font-weight:700;margin-top:2px;}
+  .long-card-dday.warn{color:var(--red);}
+  .long-card-dday.caution{color:var(--yellow);}
+  .long-card-dday.ok{color:var(--green);}
+  .sidebar-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.3);}
+  .sidebar-header{background:var(--surface2);border-bottom:1px solid var(--border);padding:12px 15px;font-size:16px;font-weight:700;color:var(--text);}
+  .sidebar-header span{color:var(--accent2);font-weight:400;font-size:15px;}
+  .progress-bar{height:3px;background:var(--border);border-radius:2px;margin:13px 15px 5px;}
+  .progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width 0.3s;width:0%;}
+  .progress-label{padding:0 15px 11px;font-size:14px;color:var(--text-muted);font-family:'Courier New',Courier,monospace;display:flex;justify-content:space-between;}
+  .summary-list{padding:4px 9px 11px;max-height:60vh;overflow-y:auto;}
+  .summary-list::-webkit-scrollbar{width:4px;}
+  .summary-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+  .summary-row{display:flex;align-items:center;justify-content:space-between;padding:6px 7px;border-radius:5px;gap:6px;border-bottom:1px solid rgba(46,50,72,0.5);}
+  .summary-row:last-child{border-bottom:none;}
+  .sum-model{font-family:'Courier New',Courier,monospace;font-size:14px;}
+  .sum-plate{font-size:14px;color:var(--text-muted);}
+  .sum-date{font-family:'Courier New',Courier,monospace;font-size:13px;color:var(--text-muted);}
+  .sum-count{font-family:'Courier New',Courier,monospace;font-size:14px;white-space:nowrap;}
+  .c-done{color:var(--green);} .c-partial{color:var(--yellow);} .c-none{color:var(--text-muted);}
+
+  /* Modal */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(10,12,25,0.7);z-index:500;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--surface);border-radius:12px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.5);border:1px solid var(--border);}
+  .modal h2{font-size:16px;font-weight:700;margin-bottom:18px;color:var(--text);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .form-row.full{grid-template-columns:1fr;}
+  .form-group{display:flex;flex-direction:column;gap:4px;}
+  .form-group label{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:0.4px;}
+  .form-group input,.form-group textarea,.form-group select{font-family:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);outline:none;transition:border-color 0.15s;}
+  .form-group input:focus,.form-group textarea:focus{border-color:var(--accent);}
+  .form-group textarea{resize:vertical;min-height:60px;}
+  .parts-editor{border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .parts-editor-item{display:flex;align-items:center;gap:6px;padding:6px 10px;border-bottom:1px solid var(--border);}
+  .parts-editor-item:last-child{border-bottom:none;}
+  .parts-editor-item input{flex:1;border:none;background:transparent;font-size:14px;font-family:inherit;color:var(--text);outline:none;}
+  .btn-remove-part{width:20px;height:20px;border-radius:4px;border:none;background:rgba(255,77,109,0.1);color:var(--red);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .btn-add-part{width:100%;padding:7px;border:1px dashed var(--border);border-radius:6px;background:transparent;color:var(--text-muted);cursor:pointer;font-size:13px;font-family:inherit;margin-top:6px;transition:all 0.13s;}
+  .btn-add-part:hover{border-color:var(--accent);color:var(--accent);}
+  .status-toggles{display:flex;gap:8px;margin-bottom:10px;}
+  .toggle-btn{flex:1;padding:7px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;font-size:13px;font-family:inherit;transition:all 0.13s;text-align:center;}
+  .toggle-btn.active-done{background:rgba(61,220,132,0.1);border-color:var(--green);color:var(--green);font-weight:600;}
+  .toggle-btn.active-cancel{background:rgba(255,77,109,0.1);border-color:var(--red);color:var(--red);font-weight:600;}
+  .modal-footer{display:flex;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+  .btn-save{flex:1;padding:9px;border-radius:7px;border:none;background:var(--accent);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.15s;}
+  .btn-save:hover{opacity:0.85;}
+  .btn-cancel-modal{padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);font-size:14px;cursor:pointer;font-family:inherit;}
+
+  /* Delete confirm */
+  .confirm-overlay{display:none;position:fixed;inset:0;background:rgba(10,12,25,0.7);z-index:600;align-items:center;justify-content:center;}
+  .confirm-overlay.open{display:flex;}
+  .confirm-box{background:var(--surface);border-radius:10px;padding:22px 24px;max-width:320px;width:90%;box-shadow:0 6px 30px rgba(0,0,0,0.5);border:1px solid var(--border);}
+  .confirm-box p{font-size:15px;margin-bottom:16px;line-height:1.6;color:var(--text);}
+  .confirm-btns{display:flex;gap:8px;}
+  .btn-confirm-del{flex:1;padding:8px;border-radius:6px;border:none;background:var(--red);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn-confirm-cancel{flex:1;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);font-size:14px;cursor:pointer;font-family:inherit;}
+
+  /* Tablet */
+  @media(max-width:880px) {
+    .main{grid-template-columns:1fr;padding:16px;}
+    .sidebar{position:static;}
+    header{flex-wrap:wrap;gap:8px;padding:10px 14px;}
+    .search-wrap{order:3;flex:1 1 100%;max-width:100%;margin:0;}
+    .stats{display:none;}
+  }
+
+  /* Mobile */
+  @media(max-width:600px) {
+    header{display:flex;flex-direction:column;gap:6px;padding:10px 12px;width:100%;}
+    .header-row1{display:flex;align-items:center;justify-content:space-between;width:100%;}
+    .header-row1 .search-wrap{display:none;}
+    .header-row3{display:flex;align-items:center;width:100%;position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:0;}
+    .header-row3 .search-icon{position:absolute;left:10px;font-size:13px;pointer-events:none;opacity:0.5;}
+    .header-row3 .search-input{width:100%;padding:7px 32px 7px 30px;border-radius:7px;border:none;background:transparent;color:var(--text);font-family:inherit;font-size:13px;outline:none;}
+    .header-row3 .search-clear{position:absolute;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;display:none;padding:2px 4px;}
+    .header-row3 .search-clear.visible{display:block;}
+    .header-row2{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    .header-row2::-webkit-scrollbar{display:none;}
+    .header-mobile-search{display:flex;width:100%;position:relative;}
+    .header-mobile-search .search-icon{position:absolute;left:10px;font-size:13px;pointer-events:none;opacity:0.5;top:50%;transform:translateY(-50%);}
+    .header-mobile-search .search-input{width:100%;padding:7px 32px 7px 30px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;outline:none;}
+    .header-mobile-search .search-clear{position:absolute;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;display:none;padding:2px 4px;top:50%;transform:translateY(-50%);}
+    .header-mobile-search .search-clear.visible{display:block;}
+    .header-row1{display:flex;align-items:center;justify-content:space-between;width:100%;}
+    .header-row1 .search-wrap{display:none;}
+    .header-row3{display:flex;align-items:center;width:100%;position:relative;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:0;}
+    .header-row3 .search-icon{position:absolute;left:10px;font-size:13px;pointer-events:none;opacity:0.5;}
+    .header-row3 .search-input{width:100%;padding:7px 32px 7px 30px;border-radius:7px;border:none;background:transparent;color:var(--text);font-family:inherit;font-size:13px;outline:none;}
+    .header-row3 .search-clear{position:absolute;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;display:none;padding:2px 4px;}
+    .header-row3 .search-clear.visible{display:block;}
+    .header-row2{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;width:100%;overflow-x:auto;}
+    header h1{font-size:13px;font-weight:700;white-space:nowrap;}
+    .clock-block{border-right:none;padding-right:0;margin-right:0;align-items:flex-end;}
+    .clock-time{font-size:19px;font-weight:700;letter-spacing:0.5px;}
+    .clock-date{font-size:10px;}
+    .header-right{display:contents;}
+    .header-right .clock-block{display:none;}
+    .btn-theme{width:36px;height:36px;font-size:13px;border-radius:6px;}
+    .btn-theme svg{width:20px;height:20px;}
+    .btn-add{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;}
+    .btn-parts-toggle{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;margin-left:auto;}
+    .btn-workorder{width:36px;height:36px;border-radius:6px;}
+    .search-wrap{width:100%;max-width:100%;margin:0;display:flex;}
+    .stats{display:flex;gap:14px;font-size:11px;border-top:1px solid var(--border);padding-top:6px;}
+    .filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+    .filters::-webkit-scrollbar{display:none;}
+    .filter-btn{white-space:nowrap;flex-shrink:0;}
+    .main{padding:8px;width:100%;max-width:100%;overflow:hidden;}
+    .content{width:100%;max-width:100%;min-width:0;overflow:hidden;}
+    #scheduleContainer{width:100%;max-width:100%;overflow:hidden;}
+    .day-section{width:100%;max-width:100%;overflow:hidden;}
+    .job-card{display:block;width:100%;max-width:100%;box-sizing:border-box;overflow:hidden;padding:10px 11px;position:relative;}
+    .job-card.is-current{border-left:3px solid var(--accent);padding-left:8px;}
+    .time-col{display:flex;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:4px;font-size:18px;font-weight:700;color:var(--text-muted);margin-bottom:5px;white-space:normal;line-height:1.4;padding-left:12px;}
+    .time-col .time-am,.time-col .time-pm,.time-col .time-ampm,.time-end .time-am,.time-end .time-pm{font-size:15px;}
+    .time-end{display:inline-flex;align-items:baseline;gap:4px;font-size:18px;margin-top:0;white-space:normal;opacity:0.9;}
+    .time-end .time-tilde{opacity:0.7;}
+    .card-actions{position:absolute;top:8px;right:8px;display:flex;gap:4px;}
+    .btn-icon{width:26px;height:26px;font-size:12px;}
+    .job-body{width:100%;overflow:hidden;overflow-wrap:break-word;word-break:break-word;}
+    .job-top{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;padding-right:60px;}
+    .job-title{font-size:15px;line-height:1.5;overflow-wrap:break-word;word-break:break-word;white-space:normal;}
+    .job-note{font-size:11px;overflow-wrap:break-word;word-break:break-word;white-space:normal;}
+    .car-model{font-size:14px;}
+    .plate{font-size:15px;font-weight:700;}
+    .vin{font-size:11px;font-weight:700;}
+    .phone{font-size:13px;overflow-wrap:break-word;word-break:break-all;}
+    .part-label{font-size:14px;overflow-wrap:break-word;}
+    .day-label{font-size:11px;padding:2px 8px;}
+    .status-badge{top:8px;right:64px;font-size:9px;}
+    .modal{padding:16px;border-radius:12px 12px 0 0;max-height:85vh;width:100%;max-width:100%;}
+    .modal-overlay{align-items:flex-end;}
+    .form-row{grid-template-columns:1fr;}
+    .summary-list{max-height:35vh;}
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</style>
+</head>
+<body>
+
+<!-- 비밀번호 화면 -->
+<div id="pw-screen">
+  <div class="pw-box">
+    <h2>정비 일정</h2>
+    <p>접근하려면 비밀번호를 입력하세요</p>
+    <input type="password" class="pw-input" id="pwInput" placeholder="••••" maxlength="20"
+      onkeydown="if(event.key==='Enter') checkPw()">
+    <button class="pw-btn" onclick="checkPw()">확인</button>
+    <div class="pw-error" id="pwError">비밀번호가 틀렸습니다</div>
+  </div>
+</div>
+
+<header>
+  <div class="header-row1">
+    <h1>정비 일정 <span id="headerMonth"></span></h1>
+    <div class="search-wrap">
+      <span class="search-icon"></span>
+      <input type="text" id="searchInput" class="search-input" placeholder="번호판, 차종, 작업내용 검색..." oninput="onSearch(this.value)">
+      <button class="search-clear" id="searchClear" onclick="clearSearch()" title="검색 초기화"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5.72 5.72a.75.75 0 0 1 1.06 0L12 10.94l5.22-5.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L13.06 12l5.22 5.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L12 13.06l-5.22 5.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L10.94 12 5.72 6.78a.75.75 0 0 1 0-1.06Z"></path></svg></button>
+    </div>
+    <div class="clock-block">
+      <div class="clock-time" id="clockTime">--:--:--</div>
+      <div class="clock-date" id="clockDate">----.--.-- (-)</div>
+    </div>
+  </div>
+  <div class="header-row2">
+    <div class="stats"><span>전체 <b id="totalCount">-</b>건</span></div>
+    <button class="btn-parts-toggle" id="partsToggleBtn" onclick="togglePartsOnly()" title="발주부품 있는 카드만 보기">발주부품</button>
+    <button class="btn-theme" id="themeBtn" onclick="toggleTheme()" title="다크/라이트 모드 전환"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M14.768 3.96v.001l-.002-.005a9.08 9.08 0 0 0-.218-.779c-.13-.394.21-.8.602-.67.29.096.575.205.855.328l.01.005A10.002 10.002 0 0 1 12 22a10.002 10.002 0 0 1-9.162-5.985l-.004-.01a9.722 9.722 0 0 1-.329-.855c-.13-.392.277-.732.67-.602.257.084.517.157.78.218l.004.002A9 9 0 0 0 14.999 6a9.09 9.09 0 0 0-.231-2.04ZM16.5 6c0 5.799-4.701 10.5-10.5 10.5-.426 0-.847-.026-1.26-.075A8.5 8.5 0 1 0 16.425 4.74c.05.413.075.833.075 1.259Z"></path></svg></button>
+    <button class="btn-workorder" onclick="printWorkOrders()" title="오늘 작업지시서 출력">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    </button>
+    <button class="btn-add" onclick="openModal()">＋ 일정 추가</button>
+  </div>
+  <!-- 모바일 전용 3번째 줄 검색창 -->
+  <div class="header-row3">
+    <span class="search-icon"></span>
+    <input type="text" id="searchInputMobile" class="search-input" placeholder="번호판, 차종, 작업내용 검색..." oninput="onSearch(this.value); document.getElementById('searchInput').value=this.value;">
+    <button class="search-clear" id="searchClearMobile" onclick="clearSearch(); this.classList.remove('visible');" title="검색 초기화"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5.72 5.72a.75.75 0 0 1 1.06 0L12 10.94l5.22-5.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L13.06 12l5.22 5.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L12 13.06l-5.22 5.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L10.94 12 5.72 6.78a.75.75 0 0 1 0-1.06Z"></path></svg></button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="content">
+    <div class="filters" id="filterBtns">
+      <button class="filter-btn active" onclick="filterJobs('all',this)">전체</button>
+    </div>
+    <div id="scheduleContainer"></div>
+  </div>
+  <div class="sidebar">
+    <!-- 장기 입고 -->
+    <div class="sidebar-card">
+      <div class="sb-section-title">장기 입고 현황 <span id="longCount">0건</span></div>
+      <div class="long-list" id="longList"><div style="padding:12px 15px;font-size:11px;color:var(--text-muted)">장기 입고 없음</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2 id="modalTitle">일정 추가</h2>
+    <div class="form-row">
+      <div class="form-group"><label>날짜</label><input type="text" id="f-date" placeholder="3/21"></div>
+      <div class="form-group"><label>종료날짜 (입고 시)</label><input type="text" id="f-endDate" placeholder="3/24 (없으면 빈칸)"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>시간</label><input type="text" id="f-time" placeholder="10:00 또는 종일"></div>
+      <div class="form-group"><label>차종 (모델)</label><input type="text" id="f-model" placeholder="F54"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>번호판</label><input type="text" id="f-plate" placeholder="110마8127"></div>
+      <div class="form-group"><label>차대번호</label><input type="text" id="f-region" placeholder="차대번호 입력"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group"><label>작업 내용</label><input type="text" id="f-title" placeholder="마운트세트3종, 차량점검"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group"><label>연락처</label><input type="text" id="f-phone" placeholder="010-1234-5678"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group"><label>메모</label><textarea id="f-note" placeholder="특이사항 메모"></textarea></div>
+    </div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>발주 부품</label>
+      <div class="parts-editor" id="partsEditor"></div>
+      <button class="btn-add-part" onclick="addPartField()">＋ 부품 추가</button>
+    </div>
+    <div class="form-group" style="margin-bottom:6px;"><label>상태</label></div>
+    <div class="status-toggles">
+      <button class="toggle-btn" id="toggle-done" onclick="toggleStatus('done')">완료</button>
+      <button class="toggle-btn" id="toggle-cancel" onclick="toggleStatus('cancel')">취소</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal()">닫기</button>
+      <button class="btn-save" onclick="saveJob()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p id="confirmMsg">이 일정을 삭제할까요?</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">취소</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()">삭제</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// ── Supabase 설정 ─────────────────────────────────────────────────────
+var SB_URL = 'https://nywusbbvowpeurtieilj.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55d3VzYmJ2b3dwZXVydGllaWxqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MDI0NjAsImV4cCI6MjA4OTM3ODQ2MH0.urseR75-_FIwhfrHjl8jvYOGgGHyBNehY7DHPxp2W9o';
+var SB_READY = false;
+
+async function sbGet(id) {
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/schedule_data?id=eq.${id}&select=data`, {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    const rows = await res.json();
+    return rows.length > 0 ? rows[0].data : null;
+  } catch(e) { return null; }
+}
+
+async function sbSet(id, data) {
+  try {
+    await fetch(`${SB_URL}/rest/v1/schedule_data`, {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ id, data, updated_at: new Date().toISOString() })
+    });
+  } catch(e) {}
+}
+
+// ── SVG 아이콘 ────────────────────────────────────────────────────────
+const ALERT_SVG  = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="#cf222e" style="vertical-align:-3px;margin-right:4px;flex-shrink:0;"><path d="M13 17.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm-.25-8.25a.75.75 0 0 0-1.5 0v4.5a.75.75 0 0 0 1.5 0v-4.5Z"></path><path d="M9.836 3.244c.963-1.665 3.365-1.665 4.328 0l8.967 15.504c.963 1.667-.24 3.752-2.165 3.752H3.034c-1.926 0-3.128-2.085-2.165-3.752Zm3.03.751a1.002 1.002 0 0 0-1.732 0L2.168 19.499A1.002 1.002 0 0 0 3.034 21h17.932a1.002 1.002 0 0 0 .866-1.5L12.866 3.994Z"></path></svg>`;
+const CHECK_SVG  = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M21.03 5.72a.75.75 0 0 1 0 1.06l-11.5 11.5a.747.747 0 0 1-1.072-.012l-5.5-5.75a.75.75 0 1 1 1.084-1.036l4.97 5.195L19.97 5.72a.75.75 0 0 1 1.06 0Z"></path></svg>`;
+const PENCIL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.263 2.177a1.75 1.75 0 0 1 2.474 0l2.586 2.586a1.75 1.75 0 0 1 0 2.474L19.53 10.03l-.012.013L8.69 20.378a1.753 1.753 0 0 1-.699.409l-5.523 1.68a.748.748 0 0 1-.747-.188.748.748 0 0 1-.188-.747l1.673-5.5a1.75 1.75 0 0 1 .466-.756L14.476 4.963ZM4.708 16.361a.26.26 0 0 0-.067.108l-1.264 4.154 4.177-1.271a.253.253 0 0 0 .1-.059l10.273-9.806-2.94-2.939-10.279 9.813ZM19 8.44l2.263-2.262a.25.25 0 0 0 0-.354l-2.586-2.586a.25.25 0 0 0-.354 0L16.061 5.5Z"></path></svg>`;
+const TRASH_SVG  = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1.75V3h5.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H8V1.75C8 .784 8.784 0 9.75 0h4.5C15.216 0 16 .784 16 1.75Zm-6.5 0V3h5V1.75a.25.25 0 0 0-.25-.25h-4.5a.25.25 0 0 0-.25.25ZM4.997 6.178a.75.75 0 1 0-1.493.144L4.916 20.92a1.75 1.75 0 0 0 1.742 1.58h10.684a1.75 1.75 0 0 0 1.742-1.581l1.413-14.597a.75.75 0 0 0-1.494-.144l-1.412 14.596a.25.25 0 0 1-.249.226H6.658a.25.25 0 0 1-.249-.226L4.997 6.178Z"></path><path d="M9.206 7.501a.75.75 0 0 1 .793.705l.5 8.5A.75.75 0 1 1 9 16.794l-.5-8.5a.75.75 0 0 1 .705-.793Zm6.293.793A.75.75 0 1 0 14 8.206l-.5 8.5a.75.75 0 0 0 1.498.088l.5-8.5Z"></path></svg>`;
+const NOTE_SVG   = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M0 4.75C0 3.784.784 3 1.75 3h20.5c.966 0 1.75.784 1.75 1.75v14.5A1.75 1.75 0 0 1 22.25 21H1.75A1.75 1.75 0 0 1 0 19.25Zm1.75-.25a.25.25 0 0 0-.25.25v14.5c0 .138.112.25.25.25h20.5a.25.25 0 0 0 .25-.25V4.75a.25.25 0 0 0-.25-.25Z"></path><path d="M5 8.75A.75.75 0 0 1 5.75 8h11.5a.75.75 0 0 1 0 1.5H5.75A.75.75 0 0 1 5 8.75Zm0 4a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75Z"></path></svg>`;
+const MOON_SVG   = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M14.768 3.96v.001l-.002-.005a9.08 9.08 0 0 0-.218-.779c-.13-.394.21-.8.602-.67.29.096.575.205.855.328l.01.005A10.002 10.002 0 0 1 12 22a10.002 10.002 0 0 1-9.162-5.985l-.004-.01a9.722 9.722 0 0 1-.329-.855c-.13-.392.277-.732.67-.602.257.084.517.157.78.218l.004.002A9 9 0 0 0 14.999 6a9.09 9.09 0 0 0-.231-2.04ZM16.5 6c0 5.799-4.701 10.5-10.5 10.5-.426 0-.847-.026-1.26-.075A8.5 8.5 0 1 0 16.425 4.74c.05.413.075.833.075 1.259Z"></path></svg>`;
+const SUN_SVG    = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 19a7 7 0 1 1 0-14 7 7 0 0 1 0 14Zm0-1.5a5.5 5.5 0 1 0 0-11 5.5 5.5 0 1 0 0 11Zm-5.657.157a.75.75 0 0 1 0 1.06l-1.768 1.768a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734l1.767-1.768a.75.75 0 0 1 1.061 0ZM3.515 3.515a.75.75 0 0 1 1.06 0l1.768 1.768a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L3.515 4.575a.75.75 0 0 1 0-1.06ZM12 0a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 12 0ZM4 12a.75.75 0 0 1-.75.75H.75a.75.75 0 0 1 0-1.5h2.5A.75.75 0 0 1 4 12Zm8 8a.75.75 0 0 1 .75.75v2.5a.75.75 0 0 1-1.5 0v-2.5A.75.75 0 0 1 12 20Zm12-8a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h2.5A.75.75 0 0 1 24 12Zm-6.343 5.657a.75.75 0 0 1 1.06 0l1.768 1.768a.751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018l-1.768-1.767a.75.75 0 0 1 0-1.061Zm2.828-14.142a.75.75 0 0 1 0 1.06l-1.768 1.768a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l1.767-1.768a.75.75 0 0 1 1.061 0Z"></path></svg>`;
+const DAY_KO = ['일','월','화','수','목','금','토'];
+
+// ── 차종 표시명 / 색상 ──────────────────────────────────────
+function displayModel(model) {
+  return (model||'').replace(/[a-z]+$/i, '');
+}
+
+function getModelColor(model) {
+  const base = (model||'').toUpperCase().replace(/[DS]$/,'');
+  if (['R50','R52','R53'].includes(base)) return {bg:'#ffcfc9',border:'#e8a49e',text:'#111'};
+  if (['R55','R56','R57','R58','R59','R60','R61'].includes(base)) return {bg:'#ffe5a0',border:'#d4b96a',text:'#111'};
+  if (['F54','F55','F56','F57','F60'].includes(base)) return {bg:'#bfe1f6',border:'#7cb8e0',text:'#111'};
+  if (['F65','F66','F67','U25'].includes(base)) return {bg:'#e6cff2',border:'#c09ad8',text:'#111'};
+  return {bg:'rgba(79,127,255,0.12)',border:'rgba(79,127,255,0.35)',text:'var(--accent)'};
+}
+
+// ── 기본 일정 데이터 (빌드 시 치환) ────────────────────────
+const DEFAULT_JOBS = [
+  {date:"5/15",endDate:"5/30",time:"15:00",endTime:"14:00",model:"R53",plate:"02누0776",region:"",title:"헤드작업진행중",parts:[],phone:"",note:"-주행중시동꺼짐,집앞카센터에서 폐차안내받음,정밀진단원함",done:false,cancelled:false},
+  {date:"5/21",endDate:"6/9",time:"11:00",endTime:"12:00",model:"R55",plate:"25버4610",region:"",title:"헤드작업대기중",parts:[],phone:"",note:"-한일오토쪽에서 미션수리후 과열경고등으로 서모스탯-물파이프 교환 완료 +플러그 코일 교환 완료 -2번홀 오일 젖음 계속 있음 : 2번플러그에 꽂혀있는게 중고, 차에 실려있는게 새거",done:false,cancelled:false},
+  {date:"5/21",endDate:"6/10",time:"11:00",endTime:"11:00",model:"R61d",plate:"45저5477",region:"",title:"DPF-터보,엔진오일,배터리충전해보고안되면교환,차량점검",parts:[],phone:"",note:"-오전 견인입고,스캔점검,최근시동꺼짐 2번정도있었음",done:false,cancelled:false},
+  {date:"5/28",endDate:"5/30",time:"11:00",endTime:"14:00",model:"R56s",plate:"47저7831",region:"",title:"뒤패드,브레이크액.엔진출력제한알람-저속주행하라고 메시지들어옴,진동떨림있슴",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/29",endDate:"6/3",time:"16:00",endTime:"16:00",model:"R53",plate:"57고8909",region:"",title:"정차시부조없고 드라이브에서 조금부조있슴,주행시 2단이상 안넘어가고 패들로는 주행가능,밋션업체에서는 밋션이상없다고함, 휠센서 지참했슴",parts:["휠센서"],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"10:00",endTime:"12:00",model:"F54",plate:"17도1493",region:"",title:"마운트세트3종, 타이밍커버",parts:["마운트세트", "타이밍커버"],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"10:00",endTime:"11:00",model:"F60",plate:"170너7835",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"10:00",endTime:"11:00",model:"R60",plate:"68다8098",region:"",title:"환기파이프, 리어활대링크,부싱,브레이크패드점검후교환,뒷문소음점검",parts:["환기파이프", "링크", "부싱"],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"10:00",endTime:"12:00",model:"F54",plate:"163다6741",region:"",title:"자동차검사",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"6/3",time:"10:00",endTime:"14:00",model:"F57",plate:"171모9688",region:"",title:"오전에 맡기고감 과열경고등",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"11:00",endTime:"12:00",model:"F55s",plate:"41모8476",region:"",title:"엔진경고등체크",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"11:00",endTime:"12:00",model:"F54",plate:"62구9453",region:"",title:"엔진오일,패드점검후교환,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"13:00",endTime:"15:00",model:"F55",plate:"193너4591",region:"",title:"마운트세트",parts:["마운트세트"],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"13:00",endTime:"14:00",model:"F54",plate:"356수7266",region:"",title:"엔진오일만지참교환, 타이밍커버",parts:["타이밍커버"],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"13:00",endTime:"14:00",model:"F55",plate:"276우9377",region:"",title:"엔진오일교환,밋션오일교환 앞패드교환. - 취소.0520",parts:[],phone:"",note:"",done:true,cancelled:true},
+  {date:"5/30",endDate:"",time:"13:00",endTime:"14:00",model:"F60",plate:"123더9730",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"13:00",endTime:"14:00",model:"R56",plate:"37마8729",region:"",title:"엑셀세게밟으면울컥거림있었다가,엔진장애메시지랑출력많이떨어짐",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"14:00",endTime:"16:00",model:"F56d",plate:"05고9191",region:"",title:"댐퍼풀리세트,엔진오일교환,에어컨필터,워셔액누수점검,타이어체크",parts:["댐퍼풀리세트"],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"14:00",endTime:"15:00",model:"F56",plate:"26너5791",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"14:00",endTime:"15:00",model:"F54",plate:"145다4214",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"6/3",time:"14:00",endTime:"13:00",model:"F54",plate:"145다4214",region:"",title:"댐퍼풀리세트, 마운트세트3종, 냉각수커넥터,엔진오일교환, 010",parts:["마운트세트", "댐퍼풀리세트"],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"15:00",endTime:"16:00",model:"F56",plate:"42누4611",region:"",title:"타이이밍커버, 센터마운트",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"15:00",endTime:"16:00",model:"F56",plate:"12누2994",region:"",title:"엔진경고등,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"5/30",endDate:"",time:"15:00",endTime:"16:00",model:"F55d",plate:"11너0699",region:"",title:"엔진오일교환, 에어컨찬바람안나옴",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"10:00",endTime:"11:00",model:"F55",plate:"09러0338",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"10:00",endTime:"11:00",model:"F60",plate:"228서5072",region:"",title:"패드점검후교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"10:00",endTime:"14:00",model:"F55",plate:"36보7185",region:"",title:"마운트세트3종, 워터펌프, 타이밍커버",parts:["마운트세트", "타이밍커버", "워터펌프"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"6/3",time:"11:00",endTime:"16:00",model:"R60sd",plate:"36보3413",region:"",title:"11시맡기고감,엑셀밟아도 차가안나가더니 시동꺼짐 2번있었슴",parts:[],phone:"",note:"",done:true,cancelled:false},
+  {date:"6/1",endDate:"",time:"11:00",endTime:"12:00",model:"F56",plate:"12너4221",region:"",title:"엔진오일교환,패드점검후교환 서비스체크",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"11:00",endTime:"12:00",model:"F55",plate:"241더9649",region:"",title:"엔진오일 필터류지참교환. dct밋션오일",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"13:00",endTime:"14:00",model:"F55",plate:"182가9168",region:"",title:"배터리점검후교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"13:00",endTime:"17:00",model:"R56d",plate:"33고3324",region:"",title:"헤드커버어셈블리,횐기파이프세척비용? 댐퍼풀리세트, 조)하단인터쿨러파이프오링, 엔진오일교환,조수석도어 안쪽에서 잘안열림",parts:["댐퍼풀리세트", "인터쿨러파이프"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"14:00",endTime:"15:00",model:"F55",plate:"111조9239",region:"",title:"후드열림알람,조수석사이드미러점검,도어손상점검,보험처리원함",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"14:00",endTime:"15:00",model:"F54",plate:"285부7530",region:"",title:"().엔진오일,DCT미션오일,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"15:00",endTime:"16:00",model:"F56",plate:"397거8061",region:"",title:"앞패드교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"16:00",endTime:"17:00",model:"F60",plate:"153조8591",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"16:00",endTime:"18:00",model:"R56",plate:"57서7071",region:"",title:"에어컨컨덴서교환,엔진오일교환 0w30 원함,에어컨필터,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"17:00",endTime:"18:00",model:"R60d",plate:"05버6514",region:"",title:"우측브레이크등점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/1",endDate:"",time:"17:00",endTime:"18:00",model:"R60d",plate:"49로8652",region:"",title:"운행중 소음이커졌다고하고 차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"10:00",endTime:"11:00",model:"F54",plate:"17수5473",region:"",title:"전구류점검,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"10:00",endTime:"18:00",model:"F54",plate:"03로6201",region:"",title:"맡기고감..마운트세트,타이밍커버",parts:["마운트세트", "타이밍커버"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"10:00",endTime:"15:00",model:"R50",plate:"358어6324",region:"",title:"오일팬,오일,프론트케이스누유작업,프론트 링크,딥스틱,각센서오링",parts:["오일팬", "링크"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"11:00",endTime:"12:00",model:"F56",plate:"13수0345",region:"",title:"차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"11:00",endTime:"17:00",model:"R53",plate:"04주2614",region:"",title:"오전맡기고감 밋션오일세트",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"11:00",endTime:"12:00",model:"R60",plate:"40조5977",region:"",title:"차가통통튐,차량전체점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"6/5",time:"11:00",endTime:"12:00",model:"R60d",plate:"272고1462",region:"",title:"운행중시동꺼짐,재시동후 드라이브넣으면 반복적으로 시동꺼짐,집으로견인후에는 시동안꺼져서 운행은가능",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"13:00",endTime:"14:00",model:"F56",plate:"194어3233",region:"",title:"브레이크액점검후교환,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"13:00",endTime:"14:00",model:"R50",plate:"04나8063",region:"",title:"에어컨점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"13:00",endTime:"14:00",model:"R60d",plate:"49로8652",region:"",title:"운행중소음이 커졌다고함,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"14:00",endTime:"15:00",model:"F55d",plate:"10주4663",region:"",title:"차량점검후,엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"14:00",endTime:"15:00",model:"R60",plate:"38조3543",region:"",title:"마운트세트점검,차량점검.[첫방문]",parts:["마운트세트"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"14:00",endTime:"15:00",model:"F54d",plate:"350거5350",region:"",title:"차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"15:00",endTime:"16:00",model:"R60d",plate:"58무9596",region:"",title:"엔진오일교환,미립자필터 경고등 계기판에 들어옴,dpf크리닝작업했슴",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"15:00",endTime:"18:00",model:"F56",plate:"41누5831",region:"",title:"엔진오일,패드한대분,플러그코일s,마운트s",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/2",endDate:"",time:"16:00",endTime:"18:00",model:"F57",plate:"21루1826",region:"",title:"마운트세트3종, 앞패드교환",parts:["마운트세트"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"13:00",endTime:"16:00",model:"F60",plate:"169저7764",region:"",title:"마운트,타이밍커버,A/c필터,브레이크액점검후교환",parts:["타이밍커버"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"13:00",endTime:"14:00",model:"R56",plate:"68우2122",region:"",title:"차량전체점검",parts:[],phone:"",note:"-몇달전 하체 충격 있었음 -소음이 있다 함 -그 외 전체적으로 견적 받아보고 더 타도될지 결정한다 함",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"13:00",endTime:"14:00",model:"F56",plate:"34오8295",region:"",title:"엔진오일,배터리점검후교환,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"14:00",endTime:"15:00",model:"R56",plate:"19러9460",region:"",title:"엔진경고등체크, 시동걸때 계속꺼져서 엑셀밟으면서 시동걸음",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"14:00",endTime:"15:00",model:"R60",plate:"57저5871",region:"",title:"스로틀밸브vdo",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"15:00",endTime:"16:00",model:"F60",plate:"134노2048",region:"",title:"엔진오일교환, 뒤패드교환, 에어컨필터",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"15:00",endTime:"16:00",model:"R60",plate:"25거4780",region:"",title:"에어컨찬바람 안나옴,오일량체크",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"15:00",endTime:"16:00",model:"F56d",plate:"10머0701",region:"",title:"엔진오일교환, 운저석앞바퀴 공기압체크알람 자주들어옴",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"16:00",endTime:"17:00",model:"R60",plate:"02보8024",region:"",title:"조수석뒤도어록교환",parts:["도어록"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"16:00",endTime:"17:00",model:"R56",plate:"22무4443",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"16:00",endTime:"17:00",model:"F56",plate:"12버2808",region:"",title:"().엔진오일,브레이크액",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"17:00",endTime:"18:00",model:"F60",plate:"03소2824",region:"",title:"브레이크액알람, 엔진오일점겅후교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/3",endDate:"",time:"17:00",endTime:"18:00",model:"F60",plate:"168고3276",region:"",title:"엔진오일교환, 엔진경고등체크",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"10:00",endTime:"11:00",model:"F5634",plate:"",region:"",title:"오8202컨트롤암세트 좌,우",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"10:00",endTime:"12:00",model:"F56",plate:"23머9266",region:"",title:"워터펌프어셈블리",parts:["워터펌프어셈블리"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"11:00",endTime:"14:00",model:"R50",plate:"06주9534",region:"",title:"자동차검사 재검 에어컨찬바람 안나옴",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"13:00",endTime:"18:00",model:"R57",plate:"45머8827",region:"",title:"서모스탯,물파이프,오일필터하우징가스켓,엔진오일교환",parts:["오일필터하우징"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"13:00",endTime:"14:00",model:"R55",plate:"248어4929",region:"",title:"연료탱크환기밸브 차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"14:00",endTime:"15:00",model:"R59",plate:"15오1820",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"14:00",endTime:"15:00",model:"F60",plate:"153러2150",region:"",title:"엔진오일,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"15:00",endTime:"16:00",model:"F54",plate:"09모3239",region:"",title:"전구류점검,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"15:00",endTime:"16:00",model:"F31",plate:"26다0228",region:"",title:"320d..언더커버립,주차브레이크클립",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"16:00",endTime:"17:00",model:"R59",plate:"142두2348",region:"",title:"디버터밸브,볼트세트,010",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/4",endDate:"",time:"16:00",endTime:"18:00",model:"F60",plate:"146수3267",region:"",title:"에어컨컴프레서",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/5",endDate:"",time:"10:00",endTime:"11:00",model:"F55",plate:"23마4819",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/5",endDate:"",time:"10:00",endTime:"11:00",model:"R60",plate:"55누7622",region:"",title:"엔진오일,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/5",endDate:"",time:"11:00",endTime:"12:00",model:"F54",plate:"191소5916",region:"",title:"서비스점검체크,차량외관점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/5",endDate:"",time:"13:00",endTime:"14:00",model:"F60",plate:"04부8628",region:"",title:"엔진오일교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/5",endDate:"",time:"13:00",endTime:"17:00",model:"R52s",plate:"287구2909",region:"",title:"워터펌프, 챠져오일",parts:["워터펌프"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/5",endDate:"",time:"14:00",endTime:"16:00",model:"R52",plate:"160나4647",region:"",title:"에어컨컴프레서",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/5",endDate:"",time:"16:00",endTime:"18:00",model:"F54",plate:"22고0975",region:"",title:"마운트세트,,RH.등속조인트수리",parts:["마운트세트"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/9",endDate:"6/13",time:"10:00",endTime:"11:00",model:"R55",plate:"55모9684",region:"",title:"견인입고,시동이 잘안걸림,엑셀밟으면서 시동은걸림 보조물펌프교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/9",endDate:"",time:"10:00",endTime:"12:00",model:"F54",plate:"283거3129",region:"",title:"마운트세트,타이밍체인커버",parts:["마운트세트", "타이밍체인커버"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/9",endDate:"",time:"13:00",endTime:"14:00",model:"R53",plate:"116더9813",region:"",title:"인터쿨러교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/9",endDate:"",time:"15:00",endTime:"16:00",model:"F54d",plate:"162다3379",region:"",title:"댐퍼풀리세트, 인터쿨러파이프오링 조)하단 운)상단",parts:["댐퍼풀리세트", "인터쿨러파이프"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/10",endDate:"",time:"13:00",endTime:"15:00",model:"R56",plate:"24루8877",region:"",title:"벨트세트,워터펌프, 풀리",parts:["워터펌프", "벨트세트"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/10",endDate:"",time:"14:00",endTime:"15:00",model:"R55d",plate:"57도2300",region:"",title:"운)상단 인터쿨러파이프오링",parts:["인터쿨러파이프"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/10",endDate:"",time:"15:00",endTime:"16:00",model:"R56",plate:"16나5905",region:"",title:"엔진오일,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/10",endDate:"",time:"15:00",endTime:"16:00",model:"F54",plate:"103라5304",region:"",title:"().DCT미션오일,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/11",endDate:"",time:"10:00",endTime:"14:00",model:"R52",plate:"09다2984",region:"",title:"파워호스2종,인테이크호스에어컨찬바람안나옴",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/11",endDate:"",time:"13:00",endTime:"14:00",model:"R57d",plate:"31가3200",region:"",title:"에어컨컨덴서,에어컨파이프",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/11",endDate:"",time:"14:30",endTime:"17:30",model:"F54",plate:"40조0168",region:"",title:"마운트세트3종, 타이밍커버, 브레이크액, 워셔액펌프, 엔진오일교환, TPMS 점검후수량결정",parts:["마운트세트", "타이밍커버"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/12",endDate:"",time:"10:00",endTime:"15:00",model:"R57",plate:"56도1421",region:"",title:"오일압력제어밸브,프론트크랭크리테이너, 조)조인트리테이너",parts:["오일압력제어밸브"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/12",endDate:"",time:"13:00",endTime:"16:00",model:"R58",plate:"22더3220",region:"",title:"벨트세트,워터펌프,리어 활대링크,부싱",parts:["워터펌프", "벨트세트", "링크", "부싱"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"10:00",endTime:"12:00",model:"F60s",plate:"25수2499",region:"",title:"all4. 마운트세트3종 87만, 플러그씰 교환",parts:["마운트세트", "플러그씰"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"10:00",endTime:"11:00",model:"R60",plate:"254라6114",region:"",title:"엔진오일교환, 브레이크패드 점검후교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"10:00",endTime:"11:00",model:"R57d",plate:"13러5793",region:"",title:"브레이크패드 알람점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"6/17",time:"10:00",endTime:"16:00",model:"F54",plate:"07라7454",region:"",title:"자동차검사후 맡기고감 조향각점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"11:00",endTime:"12:00",model:"R56",plate:"18모1831",region:"",title:"엔진오일교환, 에어컨필터, 전구류점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"11:00",endTime:"12:00",model:"R60d",plate:"42우2363",region:"",title:"제동시소음,우측브레이크등점검, 에어컨작동시 연료소모심함",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"13:00",endTime:"15:00",model:"F60",plate:"03보1349",region:"",title:"마운트세트교환",parts:["마운트세트"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"13:00",endTime:"14:00",model:"F55",plate:"22너3865",region:"",title:"엔진오일,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"13:00",endTime:"14:00",model:"F54",plate:"356수7266",region:"",title:"워셔액펌프",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"15:00",endTime:"16:00",model:"R56",plate:"65마7324",region:"",title:"고속주행시꿀렁거림",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/13",endDate:"",time:"15:00",endTime:"16:00",model:"F60",plate:"17수5888",region:"",title:"엔진오일,브레이크액,전체점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/15",endDate:"",time:"11:00",endTime:"12:00",model:"F54",plate:"191소5916",region:"",title:"서비스점검체크,차량외관점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/16",endDate:"",time:"10:00",endTime:"11:00",model:"F54",plate:"08저4298",region:"",title:"조)안개등브라켓,링,부자재 28만, 워셔탱크 20만,펌프는 옮긴후에 작동해보고 교환",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/16",endDate:"",time:"10:00",endTime:"11:00",model:"R56",plate:"18서8803",region:"",title:"윈드실드커버 좌,우,엔진경고등체크",parts:["윈드실드커버"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/17",endDate:"",time:"11:00",endTime:"12:00",model:"F54",plate:"244도9513",region:"",title:"().엔진오일,배터리교환.차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/17",endDate:"",time:"13:00",endTime:"15:00",model:"F56",plate:"61도5182",region:"",title:"마운트세트3종",parts:["마운트세트"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/18",endDate:"",time:"10:00",endTime:"11:00",model:"F56",plate:"337주5056",region:"",title:"엔진오일,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/19",endDate:"",time:"10:00",endTime:"11:00",model:"F56",plate:"271무3713",region:"",title:"엔진경고등체크",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/20",endDate:"",time:"10:00",endTime:"16:00",model:"R56",plate:"43너9116",region:"",title:"벨트세트,워터펌프,워터펌프풀리,댐퍼풀리,Fr.크랭크리테이너.[서모스탯+물파이프추가가능성]",parts:["워터펌프", "댐퍼풀리", "벨트세트"],phone:"",note:"-중간 점심시간 고지, 도저히 연차를 쓸수없다 함",done:false,cancelled:false},
+  {date:"6/20",endDate:"",time:"10:00",endTime:"11:00",model:"F60",plate:"254루9878",region:"",title:"패드점검후교환,엔진소음점검,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/23",endDate:"",time:"10:00",endTime:"12:00",model:"F56",plate:"153라7804",region:"",title:"워터펌프어셈블리,차량소음점검",parts:["워터펌프어셈블리"],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/27",endDate:"",time:"10:00",endTime:"11:00",model:"F57",plate:"284라8537",region:"",title:"().엔진오일,차량점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+  {date:"6/30",endDate:"",time:"10:00",endTime:"11:00",model:"R56",plate:"32서4576",region:"",title:"외기온도센서,배터리점검,운)테일램프 캐리어점검",parts:[],phone:"",note:"",done:false,cancelled:false},
+];
+
+// ── localStorage 키 ─────────────────────────────────────────
+window.LS_JOBS    = 'junghbi_jobs';
+window.LS_CHECKED = 'junghbi_checked';
+var LS_JOBS    = window.LS_JOBS;
+var LS_CHECKED = window.LS_CHECKED;
+var LS_PMEMO   = 'jungbi_pmemo_' + window._HASH;
+
+// ── 잡 키 ───────────────────────────────────────────────────
+function _jobKey(j) { return (j.date||'')+'|'+(j.time||'')+'|'+(j.plate||'')+'|'+(j.model||''); }
+
+// ── JOBS 저장/로드 ──────────────────────────────────────────
+function loadJobs() {
+  try {
+    var s = localStorage.getItem(LS_JOBS);
+    if (!s) return JSON.parse(JSON.stringify(DEFAULT_JOBS));
+    var stored = JSON.parse(s);
+    var storedMap = {};
+    stored.forEach(function(j) { storedMap[_jobKey(j)] = j; });
+    return DEFAULT_JOBS.map(function(dj) {
+      var old = storedMap[_jobKey(dj)];
+      if (!old) return dj;
+      return Object.assign({}, dj, {
+        done:      dj.done || old.done,
+        cancelled: dj.cancelled || old.cancelled,
+        note:      old.note !== undefined && old.note !== '' ? old.note : dj.note,
+        region:    old.region !== undefined && old.region !== '' ? old.region : dj.region,
+        parts:     old.parts !== undefined ? old.parts : dj.parts,
+      });
+    });
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_JOBS)); }
+}
+function saveJobs() {
+  try { localStorage.setItem(LS_JOBS, JSON.stringify(JOBS)); } catch(e) {}
+  if (SB_READY) sbSet('jungbi_jobs', JOBS);
+}
+
+// ── 체크 상태 저장/로드 ─────────────────────────────────────
+function loadChecked() {
+  try { var s = localStorage.getItem(LS_CHECKED); return s ? JSON.parse(s) : {}; }
+  catch(e) { return {}; }
+}
+function saveChecked() {
+  try { localStorage.setItem(LS_CHECKED, JSON.stringify(checkedState)); } catch(e) {}
+  if (SB_READY) sbSet('jungbi_checked', checkedState);
+}
+
+// ── 부품 메모 저장/로드 ─────────────────────────────────────
+function stableMemoKey(ji, pi) {
+  const j = JOBS[ji];
+  if (!j) return `${ji}-${pi}`;
+  const partName = (j.parts && j.parts[pi]) ? j.parts[pi] : pi;
+  return `${j.plate||''}|${j.date||''}|${partName}`;
+}
+function loadPartMemos() {
+  try { var s = localStorage.getItem(LS_PMEMO); return s ? JSON.parse(s) : {}; }
+  catch(e) { return {}; }
+}
+function savePartMemos() {
+  try { localStorage.setItem(LS_PMEMO, JSON.stringify(partMemos)); } catch(e) {}
+  if (SB_READY) sbSet('jungbi_pmemo', partMemos);
+}
+
+// ── 전역 상태 ────────────────────────────────────────────────
+let JOBS         = loadJobs();
+let checkedState = loadChecked();
+let partMemos    = loadPartMemos();
+let currentFilter  = 'all';
+let partsOnly      = false;
+let editingIndex   = null;
+let deletingIndex  = null;
+let modalStatus    = { done: false, cancel: false };
+let searchQuery    = '';
+
+// ── 부품 키워드 / 블랙리스트 ────────────────────────────────
+const PART_KEYWORDS = [
+  '마운트세트','마운트 세트','엔진마운트',
+  '타이밍체인커버','타이밍 체인 커버','타이밍커버',
+  '워터펌프어셈블리','워터펌프 어셈블리','워터펌프',
+  '댐퍼풀리세트','댐퍼풀리 세트','댐퍼풀리',
+  '오일필터하우징','오일필터','오일팬',
+  '터보인테이크가스켓','터보 인테이크 가스켓',
+  '터보어셈블리','터보파이프','터보재생',
+  '벨트세트','환기파이프',
+  '로워암부싱세트','앞 부싱','앞부싱','부싱세트',
+  '볼조인트','허브베어링','쇼바마운트',
+  '인터쿨러파이프','플러그씰',
+  '브레이크액','브레이크 액',
+  '브레이크패드','브레이크 패드',
+  '도어록','휠센서','앞휠센서','윈드실드커버',
+  '에어필터','헤드개스킷','클러치','링크','부싱',
+  '오일압력제어밸브',
+];
+const PART_BLACKLIST = [
+  '엔진오일','엔진 오일',
+  '미션오일','미션 오일','DCT미션오일','DCT 미션오일',
+  '에어컨필터','에어컨 필터',
+  '배터리','브레이크',
+  '앞패드','앞 패드','뒤패드','뒤 패드',
+];
+
+function extractParts(title) {
+  const found = [];
+  const tl = title.toLowerCase();
+  for (const kw of PART_KEYWORDS) {
+    if (tl.includes(kw.toLowerCase())) {
+      if (PART_BLACKLIST.some(bl => bl.toLowerCase().includes(kw.toLowerCase()) || kw.toLowerCase().includes(bl.toLowerCase()))) continue;
+      if (!found.some(f => f.toLowerCase().includes(kw.toLowerCase()) || kw.toLowerCase().includes(f.toLowerCase()))) {
+        found.push(kw);
+      }
+    }
+  }
+  return found;
+}
+
+function filterBlacklistFromParts(parts) {
+  if (!Array.isArray(parts)) return parts;
+  return parts.filter(p => !PART_BLACKLIST.some(bl =>
+    bl.toLowerCase().includes(p.toLowerCase()) || p.toLowerCase().includes(bl.toLowerCase())
+  ));
+}
+
+// ── ICS 텍스트 파서 ─────────────────────────────────────────
+function cleanText(t) {
+  return t.replace(/\\\\,/g, ',').replace(/\\,/g, ',').replace(/\\n/g, ' ').replace(/\\;/g, ';').replace(/\r/g, '').trim();
+}
+
+function parseDtStr(s) {
+  s = (s || '').trim();
+  if (s.includes(':')) s = s.split(':').pop();
+  if (s.includes('T')) {
+    const mo = s.slice(4,6), d = s.slice(6,8), h = s.slice(9,11), mi = s.slice(11,13);
+    return [`${parseInt(mo)}/${parseInt(d)}`, `${h}:${mi}`];
+  } else if (s.length >= 8) {
+    const mo = s.slice(4,6), d = s.slice(6,8);
+    return [`${parseInt(mo)}/${parseInt(d)}`, '종일'];
+  }
+  return ['', ''];
+}
+
+function parseSummary(summary) {
+  let s = summary;
+  s = s.replace(/0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{4}/g, '').trim();
+  const modelM = s.match(/^([A-Z]\d+[a-z]*d?)/);
+  const model = modelM ? modelM[1] : '';
+  if (model) s = s.slice(model.length).replace(/^\./, '');
+  const plateM = s.match(/\d{2,3}[가-힣]\d{4}|\d{3,4}[가-힣]{1,2}\d{4}|[가-힣]{2}\d{4}/);
+  const plate = plateM ? plateM[0].trim() : '';
+  if (plate) s = s.replace(plate, '');
+  s = s.replace(/[(（][^)）\n]{1,15}[)）]/g, '').replace(/^[\s.,\-]+/, '').replace(/[\s.,\-]+$/, '').replace(/\s{2,}/g, ' ').trim();
+  return { model, plate, title: s };
+}
+
+function parseICSText(text) {
+  text = text.split('\r\n ').join('').split('\r\n\t').join('');
+  text = text.split('\n ').join('').split('\n\t').join('');
+  const lines = text.split(/\r\n|\n|\r/);
+  const events = [];
+  let current = null;
+  for (const line of lines) {
+    const l = line.trim();
+    if (l === 'BEGIN:VEVENT') { current = {}; }
+    else if (l === 'END:VEVENT') { if (current) events.push(current); current = null; }
+    else if (current && l.includes(':')) {
+      const sep = l.indexOf(':');
+      const key = l.slice(0, sep).split(';')[0].toUpperCase();
+      if (!(key in current)) current[key] = l.slice(sep + 1).trim();
+    }
+  }
+  const seen = new Set();
+  const jobs = [];
+  for (const ev of events) {
+    const summary = cleanText(ev['SUMMARY'] || '');
+    if (!summary || summary.includes('청소 시간')) continue;
+    const dedup = (ev['UID'] || '') + (ev['RECURRENCE-ID'] || '');
+    if (seen.has(dedup)) continue;
+    seen.add(dedup);
+    const [dateStr, timeStr] = parseDtStr(ev['DTSTART'] || '');
+    let [endDateStr] = parseDtStr(ev['DTEND'] || '');
+    if (endDateStr === dateStr) endDateStr = '';
+    if (!dateStr) continue;
+    const cancelled = summary.includes('취소');
+    const done = !!(ev['X-NAVER-COMPLETED']);
+    const desc = cleanText(ev['DESCRIPTION'] || '');
+    const { model, plate, title } = parseSummary(summary);
+    const parts = extractParts(title);
+    jobs.push({ date: dateStr, endDate: endDateStr, time: timeStr || '종일',
+      model, plate, region: '', title, parts, phone: '', note: desc,
+      done, cancelled });
+  }
+  jobs.sort((a, b) => sortKey(a) - sortKey(b));
+  return jobs;
+}
+
+// ── 검색 ─────────────────────────────────────────────────────
+function highlight(text, query) {
+  if (!query || !text) return text || '';
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return String(text).replace(new RegExp('(' + escaped + ')', 'gi'), '<mark class="search-highlight">$1</mark>');
+}
+function jobMatchesSearch(job) {
+  if (!searchQuery) return true;
+  const fields = [job.plate, job.model, job.title, job.phone, job.note, job.region];
+  if (fields.some(f => f && String(f).toLowerCase().includes(searchQuery))) return true;
+  if (job.parts && job.parts.length > 0) {
+    return job.parts.some(part => {
+      const memo = partMemos[`${job.plate||''}|${job.date||''}|${part}`];
+      return memo && memo.toLowerCase().includes(searchQuery);
+    });
+  }
+  return false;
+}
+function onSearch(val) {
+  searchQuery = val.trim().toLowerCase();
+  document.getElementById('searchClear').classList.toggle('visible', searchQuery.length > 0);
+  const mc = document.getElementById('searchClearMobile');
+  if (mc) mc.classList.toggle('visible', searchQuery.length > 0);
+  renderSchedule();
+}
+function clearSearch() {
+  const si = document.getElementById('searchInput');
+  const sim = document.getElementById('searchInputMobile');
+  if (si) si.value = '';
+  if (sim) sim.value = '';
+  searchQuery = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  const mc = document.getElementById('searchClearMobile');
+  if (mc) mc.classList.remove('visible');
+  renderSchedule();
+}
+
+// ── 체크 헬퍼 ────────────────────────────────────────────────
+function stableKey(ji, pi) {
+  const j = JOBS[ji];
+  if (!j) return `${ji}-${pi}`;
+  return `${j.plate||''}|${j.date||''}|${j.time||''}|${pi}`;
+}
+function isChecked(ji, pi) { return !!checkedState[stableKey(ji, pi)]; }
+function setChecked(ji, pi, v) { checkedState[stableKey(ji, pi)] = v; saveChecked(); }
+
+// ── 시간 포맷 ─────────────────────────────────────────────────
+function parseTimeAmpm(t) {
+  if (!t || t === '종일') return null;
+  const m = t.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return null;
+  const h = parseInt(m[1]), min = m[2];
+  let ampm, hour;
+  if (h === 0)       { ampm = '오전'; hour = `12:${min}`; }
+  else if (h < 12)   { ampm = '오전'; hour = `${h}:${min}`; }
+  else if (h === 12) { ampm = '오후'; hour = `12:${min}`; }
+  else               { ampm = '오후'; hour = `${h - 12}:${min}`; }
+  return { ampm, hour };
+}
+
+function formatTime(t) {
+  if (!t || t === '종일') return '<span class="time-ampm">' + (t || '종일') + '</span>';
+  const p = parseTimeAmpm(t);
+  if (!p) return '<span class="time-ampm">' + t + '</span>';
+  const cls = p.ampm === '오전' ? 'time-am' : 'time-pm';
+  return `<span class="${cls}">${p.ampm}</span><span class="time-hour">${p.hour}</span>`;
+}
+
+// 종료 시간 포맷: 시작과 오전/오후가 같으면 레이블 생략
+function formatEndTime(endT, startT) {
+  const ep = parseTimeAmpm(endT);
+  const sp = parseTimeAmpm(startT);
+  if (!ep) return '';
+  if (sp && ep.ampm === sp.ampm) {
+    // 같은 오전/오후 → 레이블 생략, 시간만 반환
+    return `<span class="time-hour">${ep.hour}</span>`;
+  }
+  // 다른 오전/오후 → 레이블 표시
+  const cls = ep.ampm === '오전' ? 'time-am' : 'time-pm';
+  return `<span class="${cls}">${ep.ampm}</span><span class="time-hour">${ep.hour}</span>`;
+}
+
+// ── 정렬 ─────────────────────────────────────────────────────
+function sortKey(j) {
+  try {
+    const [m,d] = j.date.split('/');
+    const [h,mn] = j.time && j.time.includes(':') ? j.time.split(':') : ['99','0'];
+    return parseInt(m)*100000 + parseInt(d)*1000 + parseInt(h)*10 + parseInt(mn);
+  } catch(e) { return 9999999; }
+}
+function sortJobs() { JOBS.sort((a,b) => sortKey(a) - sortKey(b)); }
+
+// ── 시계 ─────────────────────────────────────────────────────
+function getNow() { return new Date(new Date().toLocaleString('en-US', {timeZone:'Asia/Seoul'})); }
+function getTodayStr() { const n = getNow(); return `${n.getMonth()+1}/${n.getDate()}`; }
+function getDayName(dateStr) {
+  try {
+    const [m,d] = dateStr.split('/');
+    const dt = new Date(new Date().getFullYear(), parseInt(m)-1, parseInt(d));
+    return DAY_KO[dt.getDay()];
+  } catch(e) { return ''; }
+}
+function updateClock() {
+  const now = getNow();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const ss = String(now.getSeconds()).padStart(2,'0');
+  const yyyy = now.getFullYear();
+  const mo = String(now.getMonth()+1).padStart(2,'0');
+  const dd = String(now.getDate()).padStart(2,'0');
+  const cp = parseTimeAmpm(`${hh}:${mm}`);
+  const ccls = cp ? (cp.ampm === '오전' ? 'time-am' : 'time-pm') : '';
+  document.getElementById('clockTime').innerHTML = cp
+    ? `<span class="${ccls}">${cp.ampm}</span> ${cp.hour}:${ss}`
+    : `${hh}:${mm}:${ss}`;
+  document.getElementById('clockDate').textContent = `${yyyy}.${mo}.${dd} (${DAY_KO[now.getDay()]})`;
+  const hdr = document.getElementById('headerMonth');
+  if (hdr) hdr.textContent = `${yyyy}년 ${now.getMonth()+1}월`;
+}
+
+// ── 필터 버튼 ─────────────────────────────────────────────────
+function rebuildFilters() {
+  const seen = [];
+  JOBS.forEach(j => { if (!seen.includes(j.date)) seen.push(j.date); });
+  seen.sort((a,b) => sortKey({date:a,time:'00:00'}) - sortKey({date:b,time:'00:00'}));
+  const c = document.getElementById('filterBtns');
+  c.innerHTML = `<button class="filter-btn ${currentFilter==='all'?'active':''}" onclick="filterJobs('all',this)">전체</button>`;
+  seen.forEach(date => {
+    const [m,d] = date.split('/');
+    const active = currentFilter === date ? ' active' : '';
+    c.innerHTML += `<button class="filter-btn${active}" onclick="filterJobs('${date}',this)">${m}/${d} (${getDayName(date)})</button>`;
+  });
+}
+
+// ── 메인 렌더 ─────────────────────────────────────────────────
+function renderSchedule() {
+  sortJobs();
+  rebuildFilters();
+  const container = document.getElementById('scheduleContainer');
+  container.innerHTML = '';
+  const totalVisible = JOBS.filter(j => jobMatchesSearch(j)).length;
+  if (searchQuery && totalVisible === 0) {
+    container.innerHTML = '<div class="search-empty"><b>"' + searchQuery + '"</b> 검색 결과가 없습니다.</div>';
+    return;
+  }
+  const byDate = {};
+  JOBS.forEach((job,i) => {
+    if (!byDate[job.date]) byDate[job.date] = [];
+    byDate[job.date].push(i);
+  });
+  const dates = Object.keys(byDate).sort((a,b) => sortKey({date:a,time:'0'}) - sortKey({date:b,time:'0'}));
+  const todayStr = getTodayStr();
+
+  dates.forEach((date, di) => {
+    if (currentFilter !== 'all' && date !== currentFilter) return;
+    const indices = byDate[date];
+    if (partsOnly) {
+      const hasPartsInDate = indices.some(i => {
+        const j = JOBS[i];
+        return j.parts && j.parts.length > 0 && !j.done && !j.cancelled;
+      });
+      if (!hasPartsInDate) return;
+    }
+    const filteredIndices = indices.filter(ji => jobMatchesSearch(JOBS[ji]));
+    if (filteredIndices.length === 0) return;
+    const activeCount = filteredIndices.filter(i => !JOBS[i].done && !JOBS[i].cancelled).length;
+    const [m,d] = date.split('/');
+    const isToday = date === todayStr;
+    const section = document.createElement('div');
+    section.className = 'day-section';
+    section.innerHTML = `<div class="day-header"><span class="day-label${isToday?' today':''}">${m}월 ${d}일 (${getDayName(date)})</span><span class="day-count">${activeCount}건</span></div>`;
+
+    const now = getNow();
+    const nowH = now.getHours();
+    const nowM = now.getMinutes();
+    const nowTotal = nowH * 60 + nowM;
+
+    indices.forEach(ji => {
+      const job = JOBS[ji];
+      if (!jobMatchesSearch(job)) return;
+      if (partsOnly && !(job.parts && job.parts.length > 0)) return;
+
+      // 현재 진행 중인 일정 판단 (오늘 날짜이고, 시작~종료 시간 사이)
+      let isCurrent = false;
+      if (isToday && job.time && job.time !== '종일' && !job.done && !job.cancelled) {
+        const [sh, sm] = job.time.split(':').map(Number);
+        const startTotal = sh * 60 + sm;
+        if (job.endTime && job.endTime !== '종일') {
+          const [eh, em] = job.endTime.split(':').map(Number);
+          const endTotal = eh * 60 + em;
+          isCurrent = nowTotal >= startTotal && nowTotal < endTotal;
+        } else {
+          // 종료 시간 없으면 시작 시각의 같은 시간대(한 시간 내)
+          isCurrent = nowH === sh;
+        }
+      }
+
+      const card = document.createElement('div');
+      card.className = 'job-card'+(job.done?' is-done':'')+(job.cancelled?' is-cancelled':'')+(isCurrent?' is-current':'');
+      const endStr = job.endDate ? `<br><span style="font-size:13px;opacity:.5">→${job.endDate}</span>` : '';
+      const endTimeHtml = (!job.endDate && job.endTime && job.endTime !== '종일' && job.endTime !== job.time)
+        ? `<div class="time-end"><span class="time-tilde">~</span>${formatEndTime(job.endTime, job.time)}</div>` : '';
+      const badge = job.cancelled ? '<span class="status-badge badge-cancel">취소</span>' : job.done ? '<span class="status-badge badge-done">완료</span>' : '';
+      const noteHtml = job.note ? `<div class="job-note">${highlight(job.note, searchQuery)}</div>` : '';
+      const phoneHtml = job.phone ? `<div class="phone">${highlight(job.phone, searchQuery)}</div>` : '';
+      const mc = getModelColor(job.model);
+      const _isUnknownModel = !job.model || job.model.trim() === '' || mc.border === 'rgba(79,127,255,0.35)';
+      const alertIcon = _isUnknownModel ? ALERT_SVG : '';
+      const vinHtml = job.region ? (() => {
+        const v = job.region;
+        const prefix = v.length > 7 ? v.slice(0, v.length - 7) : '';
+        const suffix = v.length > 7 ? v.slice(-7) : v;
+        return `<span class="vin">${prefix}<span class="vin-highlight">${suffix}</span></span>`;
+      })() : '';
+      let partsHtml = '';
+      if (job.parts && job.parts.length > 0) {
+        const rows = job.parts.map((part,pi) => {
+          const chk = isChecked(ji,pi) ? ' checked' : '';
+          const memo = partMemos[stableMemoKey(ji, pi)] || '';
+          const hasMemo = memo.length > 0;
+          return `<div>
+            <div class="part-row${chk}" id="p-${ji}-${pi}">
+              <div class="cb-box" onclick="togglePart(${ji},${pi})">${CHECK_SVG}</div>
+              <span class="part-label" onclick="togglePart(${ji},${pi})">${part}</span>
+              <button class="part-memo-btn${hasMemo?' has-memo':''}" id="pmb-${ji}-${pi}" onclick="togglePartMemo(${ji},${pi})" title="메모">${NOTE_SVG}</button>
+            </div>
+            <div class="part-memo-wrap${hasMemo?' always':''}" id="pmw-${ji}-${pi}">
+              ${hasMemo
+                ? `<div class="part-memo-text" id="pmt-${ji}-${pi}" onclick="editPartMemo(${ji},${pi})">↳ ${memo}</div>`
+                : `<input class="part-memo-input" id="pmi-${ji}-${pi}" placeholder="발주 메모 입력..." value="${memo}" onblur="savePartMemo(${ji},${pi})" onkeydown="if(event.key==='Enter')this.blur()">`
+              }
+            </div>
+          </div>`;
+        }).join('');
+        partsHtml = `<div class="parts-block"><div class="parts-block-label">발주 부품</div>${rows}</div>`;
+      }
+      card.innerHTML = `${badge}
+        <div class="time-col">${formatTime(job.time)}${endTimeHtml}${endStr}</div>
+        <div class="job-body">
+          <div class="job-top">
+            ${alertIcon}<span class="car-model" style="background:${mc.bg};border-color:${mc.border};color:${mc.text}">${highlight(displayModel(job.model), searchQuery)||''}</span>
+            <span class="plate">${highlight(job.plate, searchQuery)||''}</span>
+            ${vinHtml}
+          </div>
+          <div class="job-title">${highlight(job.title, searchQuery)||''}</div>
+          ${noteHtml}${phoneHtml}${partsHtml}
+        </div>
+        <div class="card-actions">
+          <button class="btn-icon" onclick="openModal(${ji})">${PENCIL_SVG}</button>
+          <button class="btn-icon btn-del" onclick="askDelete(${ji})">${TRASH_SVG}</button>
+        </div>`;
+      section.appendChild(card);
+    });
+    container.appendChild(section);
+    if (di < dates.length-1) {
+      const div = document.createElement('div'); div.className='section-divider'; container.appendChild(div);
+    }
+  });
+
+  const active = JOBS.filter(j=>!j.done&&!j.cancelled).length;
+  document.getElementById('totalCount').textContent = active;
+  updateProgress();
+  buildSummary();
+  buildSidePanels();
+}
+
+// ── 부품 체크 토글 ────────────────────────────────────────────
+function togglePart(ji, pi) {
+  const val = !isChecked(ji, pi);
+  setChecked(ji, pi, val);
+  const el = document.getElementById(`p-${ji}-${pi}`);
+  if (el) el.classList.toggle('checked', val);
+  updateProgress();
+  updateSummaryRow(ji);
+}
+function updateProgress() { /* 사이드바 부품발주 패널 제거됨 */ }
+function buildSummary() { /* 사이드바 부품발주 패널 제거됨 */ }
+function updateSummaryRow(ji) { /* 사이드바 부품발주 패널 제거됨 */ }
+
+// ── 부품 메모 ─────────────────────────────────────────────────
+function togglePartMemo(ji, pi) {
+  const wrap = document.getElementById(`pmw-${ji}-${pi}`);
+  if (!wrap) return;
+  const memo = partMemos[stableMemoKey(ji, pi)] || '';
+  if (memo) {
+    editPartMemo(ji, pi);
+  } else {
+    const isOpen = wrap.classList.toggle('open');
+    if (isOpen) {
+      const inp = document.getElementById(`pmi-${ji}-${pi}`);
+      if (inp) setTimeout(() => inp.focus(), 50);
+    }
+  }
+}
+function savePartMemo(ji, pi) {
+  const inp = document.getElementById(`pmi-${ji}-${pi}`);
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (val) {
+    partMemos[stableMemoKey(ji, pi)] = val;
+  } else {
+    delete partMemos[stableMemoKey(ji, pi)];
+  }
+  savePartMemos();
+  renderSchedule();
+}
+function editPartMemo(ji, pi) {
+  const wrap = document.getElementById(`pmw-${ji}-${pi}`);
+  const memo = partMemos[stableMemoKey(ji, pi)] || '';
+  wrap.innerHTML = `<input class="part-memo-input" id="pmi-${ji}-${pi}" placeholder="발주 메모 입력..." value="${memo}" onblur="savePartMemo(${ji},${pi})" onkeydown="if(event.key==='Enter')this.blur()">`;
+  wrap.classList.add('open');
+  setTimeout(() => {
+    const inp = document.getElementById(`pmi-${ji}-${pi}`);
+    if (inp) { inp.focus(); inp.select(); }
+  }, 30);
+}
+
+// ── 사이드바 (장기 입고) ──────────────────────────────────────
+function buildSidePanels() {
+  const now = getNow();
+  const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  function parseDate(str) {
+    if (!str) return null;
+    const [m,d] = str.split('/');
+    return new Date(now.getFullYear(), parseInt(m)-1, parseInt(d));
+  }
+  const longStay = JOBS.filter(j => j.endDate && !j.cancelled && !j.done).map(j => {
+    const start = parseDate(j.date);
+    const end   = parseDate(j.endDate);
+    const days  = start ? Math.floor((todayDate - start) / 86400000) : 0;
+    return {...j, days, endDateObj: end};
+  }).filter(j => j.days >= 0 && j.endDateObj && j.endDateObj >= todayDate)
+    .sort((a,b) => b.days - a.days);
+
+  document.getElementById('longCount').textContent = longStay.length + '건';
+  const lList = document.getElementById('longList');
+  if (longStay.length === 0) {
+    lList.innerHTML = '<div style="padding:8px 4px;font-size:13px;color:var(--text-muted)">현재 장기 입고 없음</div>';
+  } else {
+    lList.innerHTML = longStay.map((j, idx) => {
+      const mc  = getModelColor(j.model);
+      const end = j.endDateObj;
+      const dLeft = end ? Math.ceil((end - todayDate) / 86400000) : null;
+      const dayCls = j.days >= 7 ? 'warn' : j.days >= 3 ? 'caution' : 'ok';
+      const ddCls  = dLeft !== null ? (dLeft <= 1 ? 'warn' : dLeft <= 3 ? 'caution' : 'ok') : 'ok';
+      const ddLabel = dLeft === null ? '' : dLeft > 0 ? `D-${dLeft} 출고예정` : dLeft === 0 ? 'D-Day 출고' : '출고일 경과';
+      const phoneRow = j.phone ? `<div class="long-card-expand-row"><b>연락처</b> ${j.phone}</div>` : '';
+      const vinRow   = j.region? `<div class="long-card-expand-row"><b>차대번호</b> ${j.region}</div>` : '';
+      const noteRow  = j.note  ? `<div class="long-card-expand-row"><b>메모</b> ${j.note}</div>` : '';
+      return `<div class="long-card" id="lc-${idx}" onclick="toggleLongCard(${idx})">
+        <div class="long-card-top">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="long-card-model" style="background:${mc.bg};border-color:${mc.border};color:${mc.text}">${displayModel(j.model)||''}</span>
+            <span class="long-card-plate">${j.plate||''}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="long-card-days ${dayCls}">${j.days}일째</span>
+            <span class="long-card-chevron">▼</span>
+          </div>
+        </div>
+        <div class="long-card-title">${j.title||''}</div>
+        <div class="long-card-dates">${j.date} → ${j.endDate}</div>
+        ${ddLabel ? `<div class="long-card-dday ${ddCls}">${ddLabel}</div>` : ''}
+        <div class="long-card-expand" id="lce-${idx}">
+          ${noteRow}${phoneRow}${vinRow}
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+function toggleLongCard(idx) {
+  const card = document.getElementById('lc-' + idx);
+  const body = document.getElementById('lce-' + idx);
+  if (!card || !body) return;
+  const isOpen = body.classList.toggle('open');
+  card.classList.toggle('open', isOpen);
+}
+
+// ── 모달 (일정 추가/수정) ─────────────────────────────────────
+function openModal(ji) {
+  editingIndex = ji !== undefined ? ji : null;
+  const job = ji !== undefined ? JOBS[ji] : null;
+  document.getElementById('modalTitle').textContent = job ? '일정 수정' : '일정 추가';
+  document.getElementById('f-date').value    = job ? job.date : '';
+  document.getElementById('f-endDate').value = job ? (job.endDate||'') : '';
+  document.getElementById('f-time').value    = job ? job.time : '';
+  document.getElementById('f-model').value   = job ? job.model : '';
+  document.getElementById('f-plate').value   = job ? job.plate : '';
+  document.getElementById('f-region').value  = job ? job.region : '';
+  document.getElementById('f-title').value   = job ? job.title : '';
+  document.getElementById('f-phone').value   = job ? job.phone : '';
+  document.getElementById('f-note').value    = job ? job.note : '';
+  modalStatus = { done: job?job.done:false, cancel: job?job.cancelled:false };
+  refreshStatusToggles();
+  renderPartsEditor(job ? (job.parts||[]) : []);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+
+// ── 부품 에디터 ───────────────────────────────────────────────
+const _REMOVE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M5.72 5.72a.75.75 0 0 1 1.06 0L12 10.94l5.22-5.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L13.06 12l5.22 5.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L12 13.06l-5.22 5.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L10.94 12 5.72 6.78a.75.75 0 0 1 0-1.06Z"></path></svg>`;
+
+function renderPartsEditor(parts) {
+  const editor = document.getElementById('partsEditor');
+  editor.innerHTML = '';
+  parts.forEach((p,i) => {
+    const row = document.createElement('div'); row.className='parts-editor-item';
+    row.innerHTML=`<input type="text" value="${p}" placeholder="부품명" id="part-field-${i}"><button class="btn-remove-part" onclick="removePartField(${i})">${_REMOVE_ICON}</button>`;
+    editor.appendChild(row);
+  });
+}
+function addPartField() {
+  const editor = document.getElementById('partsEditor');
+  const idx = editor.children.length;
+  const row = document.createElement('div'); row.className='parts-editor-item';
+  row.innerHTML=`<input type="text" placeholder="부품명" id="part-field-${idx}"><button class="btn-remove-part" onclick="removePartField(${idx})">${_REMOVE_ICON}</button>`;
+  editor.appendChild(row);
+  row.querySelector('input').focus();
+}
+function removePartField(i) {
+  const editor = document.getElementById('partsEditor');
+  const items = editor.querySelectorAll('.parts-editor-item');
+  if(items[i]) items[i].remove();
+  editor.querySelectorAll('.parts-editor-item').forEach((row,ni) => {
+    row.querySelector('input').id = `part-field-${ni}`;
+    row.querySelector('button').setAttribute('onclick',`removePartField(${ni})`);
+  });
+}
+function getParts() {
+  return Array.from(document.getElementById('partsEditor').querySelectorAll('input'))
+    .map(inp=>inp.value.trim()).filter(v=>v);
+}
+
+// ── 상태 토글 (완료/취소) ─────────────────────────────────────
+function toggleStatus(type) {
+  if(type==='done') { modalStatus.done = !modalStatus.done; if(modalStatus.done) modalStatus.cancel=false; }
+  else { modalStatus.cancel = !modalStatus.cancel; if(modalStatus.cancel) modalStatus.done=false; }
+  refreshStatusToggles();
+}
+function refreshStatusToggles() {
+  document.getElementById('toggle-done').className = 'toggle-btn'+(modalStatus.done?' active-done':'');
+  document.getElementById('toggle-cancel').className = 'toggle-btn'+(modalStatus.cancel?' active-cancel':'');
+}
+
+// ── 저장 ─────────────────────────────────────────────────────
+function saveJob() {
+  const date = document.getElementById('f-date').value.trim();
+  if(!date) { alert('날짜를 입력해주세요.'); return; }
+  const job = {
+    date, endDate:document.getElementById('f-endDate').value.trim(),
+    time:document.getElementById('f-time').value.trim()||'종일',
+    model:document.getElementById('f-model').value.trim(),
+    plate:document.getElementById('f-plate').value.trim(),
+    region:document.getElementById('f-region').value.trim(),
+    title:document.getElementById('f-title').value.trim(),
+    phone:document.getElementById('f-phone').value.trim(),
+    note:document.getElementById('f-note').value.trim(),
+    parts:getParts(), done:modalStatus.done, cancelled:modalStatus.cancel,
+  };
+  if(editingIndex!==null) JOBS[editingIndex]=job; else JOBS.push(job);
+  saveJobs(); closeModal(); renderSchedule();
+}
+
+// ── 삭제 확인 ─────────────────────────────────────────────────
+function askDelete(ji) {
+  deletingIndex = ji;
+  const job = JOBS[ji];
+  document.getElementById('confirmMsg').textContent = `"${job.model} ${job.plate}" 일정을 삭제할까요?`;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); deletingIndex=null; }
+function confirmDelete() { if(deletingIndex===null) return; JOBS.splice(deletingIndex,1); saveJobs(); closeConfirm(); renderSchedule(); }
+
+// ── 시계 시작 ─────────────────────────────────────────────────
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── 필터 / 부품전용 ───────────────────────────────────────────
+function filterJobs(date, btn) {
+  currentFilter = date;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSchedule();
+}
+function togglePartsOnly() {
+  partsOnly = !partsOnly;
+  const btn = document.getElementById('partsToggleBtn');
+  if (btn) btn.classList.toggle('active', partsOnly);
+  renderSchedule();
+}
+
+// ── 테마 ─────────────────────────────────────────────────────
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  try{localStorage.setItem('jungbi_theme', isLight?'light':'dark');}catch(e){}
+  document.getElementById('themeBtn').innerHTML = isLight ? MOON_SVG : SUN_SVG;
+}
+function initTheme() {
+  var saved = ''; try{saved=localStorage.getItem('jungbi_theme')||'';}catch(e){}
+  const isLight = saved === 'light';
+  if(isLight) document.documentElement.classList.add('light');
+  document.getElementById('themeBtn').innerHTML = isLight ? MOON_SVG : SUN_SVG;
+}
+
+// ── ICS 병합 업데이트 ─────────────────────────────────────────
+async function mergeAndUpdate(newJobs) {
+  const jobKey = _jobKey;
+  let baseJobs    = JOBS;
+  let baseChecked = checkedState;
+  let baseMemos   = partMemos;
+  try {
+    const [sbJobs, sbChecked, sbMemos] = await Promise.all([
+      sbGet('jungbi_jobs'),
+      sbGet('jungbi_checked'),
+      sbGet('jungbi_pmemo'),
+    ]);
+    if (sbJobs && sbJobs.length > 0) baseJobs = sbJobs;
+    if (sbChecked) baseChecked = Object.assign({}, checkedState, sbChecked);
+    if (sbMemos)   baseMemos   = Object.assign({}, partMemos, sbMemos);
+  } catch(e) {}
+
+  checkedState = baseChecked;
+  const oldMap = {};
+  baseJobs.forEach(j => { oldMap[jobKey(j)] = j; });
+  const merged = newJobs.map(nj => {
+    const old = oldMap[jobKey(nj)];
+    if (!old) return nj;
+    return {
+      ...nj,
+      done:      nj.done || old.done,
+      cancelled: nj.cancelled || old.cancelled,
+      note:      old.note !== undefined && old.note !== '' ? old.note : nj.note,
+      region:    old.region !== undefined && old.region !== '' ? old.region : nj.region,
+      parts:     old.parts !== undefined ? old.parts : nj.parts,
+    };
+  });
+
+  JOBS = merged;
+  saveJobs();
+  partMemos = baseMemos;
+  try { localStorage.setItem(LS_CHECKED, JSON.stringify(checkedState)); } catch(e) {}
+  try { localStorage.setItem(LS_PMEMO,   JSON.stringify(partMemos));    } catch(e) {}
+  if (SB_READY) {
+    sbSet('jungbi_checked', checkedState);
+    sbSet('jungbi_pmemo', partMemos);
+  }
+
+  // 오래된 partMemos 정리 (ICS 날짜 범위 ±30일 밖 삭제)
+  try {
+    const jobDates = JOBS.map(j => {
+      const p = (j.date || '').split('/');
+      if (p.length === 2) return new Date(new Date().getFullYear(), parseInt(p[0])-1, parseInt(p[1]));
+      return null;
+    }).filter(Boolean);
+    if (jobDates.length > 0) {
+      const minD = new Date(Math.min(...jobDates.map(d=>d.getTime())));
+      const maxD = new Date(Math.max(...jobDates.map(d=>d.getTime())));
+      const cutStart = new Date(minD); cutStart.setDate(cutStart.getDate()-30);
+      const cutEnd   = new Date(maxD); cutEnd.setDate(cutEnd.getDate()+30);
+      let cleaned = false;
+      Object.keys(partMemos).forEach(k => {
+        if (!k.includes('|')) return;
+        const dp = (k.split('|')[1]||'').split('/');
+        if (dp.length !== 2) return;
+        const md = new Date(new Date().getFullYear(), parseInt(dp[0])-1, parseInt(dp[1]));
+        if (md < cutStart || md > cutEnd) { delete partMemos[k]; cleaned = true; }
+      });
+      if (cleaned) {
+        try { localStorage.setItem(LS_PMEMO, JSON.stringify(partMemos)); } catch(e) {}
+        sbSet('jungbi_pmemo', partMemos);
+      }
+    }
+  } catch(e) { console.warn('partMemos 정리 중 오류:', e); }
+
+  renderSchedule();
+}
+
+// ── 비밀번호 보호 ─────────────────────────────────────────────
+const PW_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // 1234
+async function hashPw(pw) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+async function checkPw() {
+  const val = document.getElementById('pwInput').value;
+  const h = await hashPw(val);
+  if (h === PW_HASH) {
+    sessionStorage.setItem('jungbi_auth', '1');
+    document.getElementById('pw-screen').style.display = 'none';
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+if (sessionStorage.getItem('jungbi_auth') === '1') {
+  document.getElementById('pw-screen').style.display = 'none';
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('pwInput').focus();
+  });
+}
+
+// ── 초기화 ───────────────────────────────────────────────────
+initTheme();
+
+(async function initFromSupabase() {
+  try {
+    const [sbJobs, sbChecked, sbMemos] = await Promise.all([
+      sbGet('jungbi_jobs'),
+      sbGet('jungbi_checked'),
+      sbGet('jungbi_pmemo'),
+    ]);
+    if (sbJobs) {
+      const jobKey = _jobKey;
+      const sbMap = {};
+      sbJobs.forEach(j => { sbMap[jobKey(j)] = j; });
+      const merged = DEFAULT_JOBS.map(dj => {
+        const sb = sbMap[jobKey(dj)];
+        if (!sb) return dj;
+        return {
+          ...dj,
+          done:      dj.done || sb.done,
+          cancelled: dj.cancelled || sb.cancelled,
+          note:      sb.note !== undefined && sb.note !== '' ? sb.note : dj.note,
+          region:    sb.region !== undefined && sb.region !== '' ? sb.region : dj.region,
+          parts:     sb.parts !== undefined ? filterBlacklistFromParts(sb.parts) : dj.parts,
+        };
+      });
+      JOBS = merged;
+      try { localStorage.setItem(LS_JOBS, JSON.stringify(JOBS)); } catch(e) {}
+    }
+    if (sbChecked) {
+      checkedState = Object.assign({}, checkedState, sbChecked);
+      try { localStorage.setItem(LS_CHECKED, JSON.stringify(checkedState)); } catch(e) {}
+    }
+    if (sbMemos) {
+      partMemos = Object.assign({}, partMemos, sbMemos);
+      try { localStorage.setItem(LS_PMEMO, JSON.stringify(partMemos)); } catch(e) {}
+    }
+    SB_READY = true;
+    console.log('Supabase 데이터 로드 완료');
+  } catch(e) {
+    SB_READY = true;
+    console.warn('Supabase 로드 실패, localStorage 사용:', e);
+  }
+  const todayStr = getTodayStr();
+  if (JOBS.some(j => j.date === todayStr)) currentFilter = todayStr;
+  renderSchedule();
+})();
+
+// ── 작업 지시서 출력 ──────────────────────────────────────────
+function printWorkOrders() {
+  const todayStr = getTodayStr();
+  const todayJobs = JOBS.filter(j => j.date === todayStr && !j.cancelled);
+
+  if (todayJobs.length === 0) {
+    alert('오늘 등록된 일정이 없습니다.');
+    return;
+  }
+
+  function esc(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function fmtDate(d) {
+    const p = (d || '').split('/');
+    if (p.length !== 2) return d || '';
+    const y = new Date().getFullYear();
+    return `${y}.${String(p[0]).padStart(2,'0')}.${String(p[1]).padStart(2,'0')}`;
+  }
+
+  const NUM_ROWS = 8;
+
+  const pages = todayJobs.map((job, idx) => {
+    // 작업 항목: parts 우선, 없으면 title을 쉼표로 분리
+    const raw = (job.parts && job.parts.length > 0)
+      ? job.parts
+      : (job.title || '').split(',').map(s => s.trim()).filter(Boolean);
+
+    const rows = Array.from({length: NUM_ROWS}, (_, i) => {
+      const v = esc(raw[i] || '');
+      return `<tr>
+        <td class="col-no">${i + 1}</td>
+        <td class="col-list"><input type="text" value="${v}"></td>
+        <td class="col-check"><input type="checkbox"></td>
+        <td class="col-check"><input type="checkbox"></td>
+      </tr>`;
+    }).join('');
+
+    const oId = `go-${idx}`, cId = `gc-${idx}`;
+
+    return `<div class="paper" id="paper-${idx}">
+  <div class="doc-header">
+    <div class="title-block">
+      <div class="doc-title">작업 지시서</div>
+      <div class="doc-sub">WORK ORDER</div>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-item"><span class="meta-label">담당자</span><input class="meta-value" type="text" value=""></div>
+      <div class="meta-item"><span class="meta-label">차종</span><input class="meta-value" type="text" value="${esc(job.model)}"></div>
+      <div class="meta-item"><span class="meta-label">날짜</span><input class="meta-value" type="text" value="${esc(fmtDate(job.date))}"></div>
+      <div class="meta-item"><span class="meta-label">차량 번호</span><input class="meta-value" type="text" value="${esc(job.plate)}"></div>
+      <div class="meta-item wide"><span class="meta-label">주행 거리</span><input class="meta-value" type="text" value=""></div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="work-table">
+      <thead>
+        <tr>
+          <th style="width:44px;text-align:center;border-right:0.5px solid #ddd;">No.</th>
+          <th>List</th>
+          <th class="center" style="width:56px;border-left:0.5px solid #ddd;">Check</th>
+          <th class="center" style="width:56px;border-left:0.5px solid #ddd;">Check</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+        <tr class="special-row" style="border-top:0.5px solid #ccc;">
+          <td colspan="4"><div class="special-inner"><div class="special-label">특이사항 1</div><textarea class="special-input" rows="2">${esc(job.note)}</textarea></div></td>
+        </tr>
+        <tr class="special-row" style="border-top:0.5px solid #ddd;">
+          <td colspan="4"><div class="special-inner"><div class="special-label">특이사항 2</div><textarea class="special-input" rows="2"></textarea></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="doc-footer">
+    <div class="basic-check">
+      <div class="basic-title">기본 점검</div>
+      <div class="chips">
+        <div class="chip" onclick="toggleChip(this)"><span class="chip-box"></span>공기압</div>
+        <div class="chip" onclick="toggleChip(this)"><span class="chip-box"></span>워셔액</div>
+        <div class="chip" onclick="toggleChip(this)"><span class="chip-box"></span>서비스 리셋</div>
+        <div class="chip" onclick="toggleChip(this)"><span class="chip-box"></span>엔진룸 크리닝</div>
+        <div class="chip" onclick="toggleChip(this)"><span class="chip-box"></span>전구류 점검</div>
+      </div>
+    </div>
+    <div class="gauges">
+      <div class="gauge">
+        <div class="gauge-bar" id="${oId}" onclick="cycleGauge('${oId}')"><div class="gauge-fill oil" style="height:0%"></div></div>
+        <div class="gauge-label">OIL LEVEL</div>
+      </div>
+      <div class="gauge">
+        <div class="gauge-bar" id="${cId}" onclick="cycleGauge('${cId}')"><div class="gauge-fill coolant" style="height:0%"></div></div>
+        <div class="gauge-label">COOLANT</div>
+      </div>
+    </div>
+  </div>
+</div>`;
+  });
+
+  const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>작업 지시서 ${fmtDate(todayStr)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Noto Sans KR',sans-serif;background:#eeede9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:16px;}
+  .toolbar{width:100%;max-width:794px;display:flex;justify-content:space-between;align-items:center;}
+  .toolbar-hint{font-size:13px;color:#888;font-weight:300;}
+  .print-btn{display:flex;align-items:center;gap:8px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-family:'Noto Sans KR',sans-serif;font-weight:400;cursor:pointer;transition:background 0.15s;}
+  .print-btn:hover{background:#333;}
+  .print-btn svg{width:15px;height:15px;}
+  .paper{width:794px;height:1123px;background:#fff;border-radius:4px;padding:52px 56px;box-shadow:0 2px 24px rgba(0,0,0,0.10);display:flex;flex-direction:column;}
+  .doc-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid #1a1a1a;margin-bottom:20px;}
+  .title-block .doc-title{font-size:33px;font-weight:500;color:#1a1a1a;letter-spacing:-0.5px;line-height:1.1;}
+  .title-block .doc-sub{font-size:12px;font-weight:300;color:#999;letter-spacing:1.5px;margin-top:6px;}
+  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;min-width:340px;}
+  .meta-item{display:flex;flex-direction:column;gap:4px;}
+  .meta-item.wide{grid-column:1/-1;}
+  .meta-label{font-size:11px;font-weight:300;color:#aaa;}
+  .meta-value{border:none;border-bottom:0.5px solid #ccc;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:400;color:#1a1a1a;padding:2px 0 4px;background:transparent;width:100%;}
+  .meta-value:focus{border-bottom-color:#888;}
+  .table-wrap{flex:1;display:flex;flex-direction:column;margin-bottom:20px;min-height:0;}
+  .work-table{width:100%;border-collapse:collapse;border:0.5px solid #ccc;border-radius:4px;overflow:hidden;height:100%;}
+  .work-table thead th{background:#f5f5f3;font-size:11px;font-weight:500;color:#666;letter-spacing:0.3px;padding:8px 12px;border-bottom:0.5px solid #ccc;text-align:left;}
+  .work-table thead th.center{text-align:center;}
+  .work-table tbody tr{border-bottom:0.5px solid #e5e5e5;}
+  .work-table tbody tr:last-child{border-bottom:none;}
+  .col-no{width:44px;text-align:center;font-size:12px;color:#bbb;font-weight:300;border-right:0.5px solid #e5e5e5;padding:0;vertical-align:middle;}
+  .col-list{padding:0;vertical-align:middle;}
+  .col-list input{width:100%;border:none;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:13.5px;font-weight:400;color:#1a1a1a;background:transparent;padding:14px 12px;display:block;}
+  .col-check{width:56px;text-align:center;border-left:0.5px solid #e5e5e5;vertical-align:middle;padding:14px 0;}
+  .col-check input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid #ccc;border-radius:2px;cursor:pointer;position:relative;display:inline-block;transition:all 0.15s;}
+  .col-check input[type="checkbox"]:checked{background:#1a1a1a;border-color:#1a1a1a;}
+  .col-check input[type="checkbox"]:checked::after{content:'';position:absolute;left:3px;top:1px;width:5px;height:8px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);}
+  .special-row td{background:#f5f5f3;padding:0;vertical-align:top;}
+  .special-inner{padding:10px 12px;height:100%;display:flex;flex-direction:column;}
+  .special-label{font-size:11px;font-weight:300;color:#aaa;letter-spacing:0.3px;margin-bottom:6px;}
+  .special-input{width:100%;border:none;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:13.5px;font-weight:400;color:#1a1a1a;background:transparent;resize:none;flex:1;min-height:44px;line-height:1.6;}
+  .doc-footer{border-top:1px solid #1a1a1a;padding-top:20px;display:flex;justify-content:space-between;align-items:flex-end;}
+  .basic-check{flex:1;}
+  .basic-title{font-size:11px;font-weight:500;color:#666;letter-spacing:0.3px;margin-bottom:10px;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:300;color:#555;border:0.5px solid #ccc;border-radius:20px;padding:5px 12px;background:#f9f9f7;cursor:pointer;transition:all 0.15s;user-select:none;}
+  .chip:hover{border-color:#999;}
+  .chip.checked{background:#1a1a1a;border-color:#1a1a1a;color:#fff;}
+  .chip-box{display:inline-block;width:11px;height:11px;border:1px solid #ccc;border-radius:2px;position:relative;flex-shrink:0;transition:all 0.15s;}
+  .chip.checked .chip-box{border-color:#fff;background:transparent;}
+  .chip.checked .chip-box::after{content:'';position:absolute;left:2px;top:0;width:4px;height:7px;border:1.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);}
+  .gauges{display:flex;gap:16px;align-items:flex-end;margin-left:24px;}
+  .gauge{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .gauge-label{font-size:10px;font-weight:300;color:#aaa;letter-spacing:0.5px;}
+  .gauge-bar{width:32px;height:64px;border:0.5px solid #ccc;border-radius:3px;background:#f5f5f3;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;cursor:pointer;}
+  .gauge-fill{width:100%;transition:height 0.3s ease;}
+  .gauge-fill.oil{background:#B5D4F4;}
+  .gauge-fill.coolant{background:#9FE1CB;}
+  @media print {
+    @page{size:A4;margin:18mm;}
+    body{background:none;padding:0;display:block;}
+    .toolbar{display:none;}
+    .paper{width:100%;height:auto;min-height:0;padding:0;box-shadow:none;border-radius:0;page-break-after:always;}
+    .paper:last-child{page-break-after:avoid;}
+    .col-list input,.special-input,.meta-value,.special-row td,.work-table thead th,.gauge-fill,.chip.checked{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .col-check input[type="checkbox"]:checked{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <span class="toolbar-hint">내용 수정 후 인쇄 버튼으로 PDF 저장 (총 ${todayJobs.length}건)</span>
+  <button class="print-btn" onclick="window.print()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    인쇄 / PDF 저장
+  </button>
+</div>
+${pages.join('\n')}
+<script>
+  function toggleChip(el){el.classList.toggle('checked');}
+  function cycleGauge(id){
+    var bar=document.getElementById(id);
+    var fill=bar.querySelector('.gauge-fill');
+    var levels=[0,25,40,55,75,100];
+    var cur=parseInt(fill.style.height)||0;
+    var idx=levels.indexOf(cur);
+    fill.style.height=levels[(idx+1)%levels.length]+'%';
+  }
+  function fitSpecialRows(paper){
+    var tableWrap=paper.querySelector('.table-wrap');
+    var specialRows=paper.querySelectorAll('.special-row');
+    specialRows.forEach(function(r){r.style.height='';});
+    var paperH=paper.clientHeight;
+    var available=paperH-52-52;
+    var siblings=Array.from(paper.children).filter(function(el){return el!==tableWrap;});
+    var siblingsH=siblings.reduce(function(sum,el){
+      var s=getComputedStyle(el);
+      return sum+el.offsetHeight+parseInt(s.marginTop||0)+parseInt(s.marginBottom||0);
+    },0);
+    var wrapStyle=getComputedStyle(tableWrap);
+    var targetH=available-siblingsH-parseInt(wrapStyle.marginBottom||0);
+    var table=tableWrap.querySelector('.work-table');
+    var thead=table.querySelector('thead');
+    var fixedRows=Array.from(table.querySelectorAll('tbody tr:not(.special-row)'));
+    var fixedH=thead.offsetHeight+fixedRows.reduce(function(s,r){return s+r.offsetHeight;},0);
+    var specialH=Math.max((targetH-fixedH)/specialRows.length,80);
+    specialRows.forEach(function(r){r.style.height=specialH+'px';});
+  }
+  function fitAll(){document.querySelectorAll('.paper').forEach(function(p){fitSpecialRows(p);});}
+  window.addEventListener('load',fitAll);
+  window.addEventListener('resize',fitAll);
+<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) {
+    alert('팝업이 차단되었습니다. 이 사이트의 팝업을 허용한 후 다시 시도해주세요.');
+    return;
+  }
+  win.document.write(html);
+  win.document.close();
+}
+
+</script>
+</body>
+</html>
