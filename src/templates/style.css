@@ -39,6 +39,9 @@
   .btn-theme svg{width:20px;height:20px;}
   .btn-theme:hover{border-color:var(--accent);}
   .btn-parts-toggle{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:0 11px;height:36px;box-sizing:border-box;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all 0.15s;font-family:inherit;white-space:nowrap;}
+  .btn-workorder{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;color:var(--text-muted);}
+  .btn-workorder:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,127,255,0.08);}
+  .btn-workorder svg{width:16px;height:16px;}
   .btn-parts-toggle:hover{border-color:var(--accent2);color:var(--accent2);}
   .btn-parts-toggle.active{background:var(--accent2);border-color:var(--accent2);color:white;}
 
@@ -268,6 +271,7 @@
     .btn-theme svg{width:20px;height:20px;}
     .btn-add{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;}
     .btn-parts-toggle{font-size:11px;padding:4px 7px;border-radius:6px;white-space:nowrap;margin-left:auto;}
+    .btn-workorder{width:36px;height:36px;border-radius:6px;}
     .search-wrap{width:100%;max-width:100%;margin:0;display:flex;}
     .stats{display:flex;gap:14px;font-size:11px;border-top:1px solid var(--border);padding-top:6px;}
     .filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}

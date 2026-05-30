@@ -11,6 +11,7 @@ _JS_FILES = [
     "js/render.js",
     "js/modal.js",
     "js/ui.js",
+    "js/workorder.js",
 ]
 
 
