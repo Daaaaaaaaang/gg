@@ -19,7 +19,7 @@ function printWorkOrders() {
     return `${y}.${String(p[0]).padStart(2,'0')}.${String(p[1]).padStart(2,'0')}`;
   }
 
-  const NUM_ROWS = 8;
+  const NUM_ROWS = 7;
 
   const pages = todayJobs.map((job, idx) => {
     // 작업 항목: parts 우선, 없으면 title을 쉼표로 분리
