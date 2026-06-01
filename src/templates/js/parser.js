@@ -74,7 +74,8 @@ function parseSummary(summary) {
   const plateM = s.match(/\d{2,3}[가-힣]\d{4}|\d{3,4}[가-힣]{1,2}\d{4}|[가-힣]{2}\d{4}/);
   const plate = plateM ? plateM[0].trim() : '';
   if (plate) s = s.replace(plate, '');
-  s = s.replace(/[(（][^)）\n]{1,15}[)）]/g, '').replace(/^[\s.,\-]+/, '').replace(/[\s.,\-]+$/, '').replace(/\s{2,}/g, ' ').trim();
+  // 번호판 직후(앞 2자 이내) 괄호만 지역명으로 간주해 제거, 이후 괄호는 유지
+  s = s.replace(/^([\s.,\-]{0,2})[(（][^)）\n]{1,10}[)）]/, '$1').replace(/^[\s.,\-]+/, '').replace(/[\s.,\-]+$/, '').replace(/\s{2,}/g, ' ').trim();
   return { model, plate, title: s };
 }
 
