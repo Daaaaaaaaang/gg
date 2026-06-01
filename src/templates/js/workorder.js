@@ -221,11 +221,11 @@ ${pages.join('\n')}
 </body>
 </html>`;
 
-  const win = window.open('', '_blank');
+  const blob = new Blob([html], {type: 'text/html; charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
   if (!win) {
     alert('팝업이 차단되었습니다. 이 사이트의 팝업을 허용한 후 다시 시도해주세요.');
-    return;
   }
-  win.document.write(html);
-  win.document.close();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
