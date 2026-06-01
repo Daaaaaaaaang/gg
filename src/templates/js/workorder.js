@@ -109,13 +109,13 @@ function printWorkOrders() {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>작업 지시서 ${fmtDate(todayStr)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Noto Sans KR',sans-serif;background:#eeede9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:16px;}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:#eeede9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px;gap:16px;}
   .toolbar{width:100%;max-width:794px;display:flex;justify-content:space-between;align-items:center;}
   .toolbar-hint{font-size:13px;color:#888;font-weight:300;}
-  .print-btn{display:flex;align-items:center;gap:8px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-family:'Noto Sans KR',sans-serif;font-weight:400;cursor:pointer;transition:background 0.15s;}
+  .print-btn{display:flex;align-items:center;gap:8px;background:#1a1a1a;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:400;cursor:pointer;transition:background 0.15s;}
   .print-btn:hover{background:#333;}
   .print-btn svg{width:15px;height:15px;}
   .paper{width:794px;height:1123px;background:#fff;border-radius:4px;padding:52px 56px;box-shadow:0 2px 24px rgba(0,0,0,0.10);display:flex;flex-direction:column;}
@@ -128,7 +128,7 @@ function printWorkOrders() {
   .meta-item{display:flex;flex-direction:column;gap:4px;}
   .meta-item.wide{grid-column:1/-1;}
   .meta-label{font-size:11px;font-weight:300;color:#aaa;}
-  .meta-value{border:none;border-bottom:0.5px solid #ccc;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:400;color:#1a1a1a;padding:2px 0 4px;background:transparent;width:100%;}
+  .meta-value{border:none;border-bottom:0.5px solid #ccc;outline:none;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;font-size:14px;font-weight:400;color:#1a1a1a;padding:2px 0 4px;background:transparent;width:100%;}
   .meta-value:focus{border-bottom-color:#888;}
   .table-wrap{flex:1;display:flex;flex-direction:column;margin-bottom:20px;min-height:0;}
   .work-table{width:100%;border-collapse:collapse;border:0.5px solid #ccc;border-radius:4px;overflow:hidden;height:100%;}
@@ -138,7 +138,7 @@ function printWorkOrders() {
   .work-table tbody tr:last-child{border-bottom:none;}
   .col-no{width:44px;text-align:center;font-size:12px;color:#bbb;font-weight:300;border-right:0.5px solid #e5e5e5;padding:0;vertical-align:middle;}
   .col-list{padding:0;vertical-align:middle;}
-  .col-list input{width:100%;border:none;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:13.5px;font-weight:400;color:#1a1a1a;background:transparent;padding:14px 12px;display:block;}
+  .col-list input{width:100%;border:none;outline:none;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13.5px;font-weight:400;color:#1a1a1a;background:transparent;padding:14px 12px;display:block;}
   .col-check{width:56px;text-align:center;border-left:0.5px solid #e5e5e5;vertical-align:middle;padding:14px 0;}
   .col-check input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1px solid #ccc;border-radius:2px;cursor:pointer;position:relative;display:inline-block;transition:all 0.15s;}
   .col-check input[type="checkbox"]:checked{background:#1a1a1a;border-color:#1a1a1a;}
@@ -146,7 +146,7 @@ function printWorkOrders() {
   .special-row td{background:#f5f5f3;padding:0;vertical-align:top;}
   .special-inner{padding:10px 12px;height:100%;display:flex;flex-direction:column;}
   .special-label{font-size:11px;font-weight:300;color:#aaa;letter-spacing:0.3px;margin-bottom:6px;}
-  .special-input{width:100%;border:none;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:13.5px;font-weight:400;color:#1a1a1a;background:transparent;resize:none;flex:1;min-height:44px;line-height:1.6;}
+  .special-input{width:100%;border:none;outline:none;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13.5px;font-weight:400;color:#1a1a1a;background:transparent;resize:none;flex:1;min-height:44px;line-height:1.6;}
   .doc-footer{border-top:1px solid #1a1a1a;padding-top:20px;display:flex;justify-content:space-between;align-items:flex-end;}
   .basic-check{flex:1;}
   .basic-title{font-size:11px;font-weight:500;color:#666;letter-spacing:0.3px;margin-bottom:10px;}
