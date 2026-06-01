@@ -120,7 +120,7 @@ function printWorkOrders() {
   .print-btn svg{width:15px;height:15px;}
   .paper{width:794px;height:1123px;background:#fff;border-radius:4px;padding:52px 56px;box-shadow:0 2px 24px rgba(0,0,0,0.10);display:flex;flex-direction:column;}
   .doc-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;margin-bottom:0;}
-  .reservation-row{display:flex;flex-direction:column;gap:4px;margin-top:-4px;margin-bottom:20px;}
+  .reservation-row{display:flex;flex-direction:column;gap:4px;margin-top:-4px;margin-bottom:10px;}
   .reservation-full{width:100%;resize:none;overflow:hidden;line-height:1.6;min-height:22px;}
   .title-block .doc-title{font-size:33px;font-weight:500;color:#1a1a1a;letter-spacing:-0.5px;line-height:1.1;}
   .title-block .doc-sub{font-size:12px;font-weight:300;color:#999;letter-spacing:1.5px;margin-top:6px;}
