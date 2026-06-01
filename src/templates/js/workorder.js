@@ -53,6 +53,10 @@ function printWorkOrders() {
       <div class="meta-item wide"><span class="meta-label">주행 거리</span><input class="meta-value" type="text" value=""></div>
     </div>
   </div>
+  <div class="reservation-row">
+    <span class="meta-label">예약 내용</span>
+    <input class="meta-value reservation-full" type="text" value="${esc(job.title)}">
+  </div>
   <div class="table-wrap">
     <table class="work-table">
       <thead>
@@ -115,7 +119,9 @@ function printWorkOrders() {
   .print-btn:hover{background:#333;}
   .print-btn svg{width:15px;height:15px;}
   .paper{width:794px;height:1123px;background:#fff;border-radius:4px;padding:52px 56px;box-shadow:0 2px 24px rgba(0,0,0,0.10);display:flex;flex-direction:column;}
-  .doc-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:1px solid #1a1a1a;margin-bottom:20px;}
+  .doc-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;margin-bottom:0;}
+  .reservation-row{display:flex;flex-direction:column;gap:4px;margin-top:-4px;margin-bottom:20px;}
+  .reservation-full{width:100%;}
   .title-block .doc-title{font-size:33px;font-weight:500;color:#1a1a1a;letter-spacing:-0.5px;line-height:1.1;}
   .title-block .doc-sub{font-size:12px;font-weight:300;color:#999;letter-spacing:1.5px;margin-top:6px;}
   .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;min-width:340px;}
