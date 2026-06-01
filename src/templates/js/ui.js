@@ -58,7 +58,7 @@ async function mergeAndUpdate(newJobs) {
       cancelled: nj.cancelled || old.cancelled,
       note:      old.note !== undefined && old.note !== '' ? old.note : nj.note,
       region:    old.region !== undefined && old.region !== '' ? old.region : nj.region,
-      parts:     old.parts !== undefined ? old.parts : nj.parts,
+      parts:     (old.parts && old.parts.length > 0) ? old.parts : nj.parts,
     };
   });
 
@@ -151,7 +151,7 @@ initTheme();
           cancelled: dj.cancelled || sb.cancelled,
           note:      sb.note !== undefined && sb.note !== '' ? sb.note : dj.note,
           region:    sb.region !== undefined && sb.region !== '' ? sb.region : dj.region,
-          parts:     sb.parts !== undefined ? filterBlacklistFromParts(sb.parts) : dj.parts,
+          parts:     (sb.parts && sb.parts.length > 0) ? filterBlacklistFromParts(sb.parts) : dj.parts,
         };
       });
       JOBS = merged;
