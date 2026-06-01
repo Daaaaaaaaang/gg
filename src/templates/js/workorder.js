@@ -216,10 +216,8 @@ ${pages.join('\n')}
   }
   function fitReservations(){
     document.querySelectorAll('.reservation-full').forEach(function(ta){
-      ta.style.height='auto';
-      var s=getComputedStyle(ta);
-      var pad=parseInt(s.paddingTop||0)+parseInt(s.paddingBottom||0);
-      ta.style.height=(ta.scrollHeight)+'px';
+      ta.style.height='0';
+      ta.style.height=ta.scrollHeight+'px';
     });
   }
   function fitAll(){fitReservations();document.querySelectorAll('.paper').forEach(function(p){fitSpecialRows(p);});}
