@@ -19,6 +19,20 @@ function printWorkOrders() {
     return `${y}.${String(p[0]).padStart(2,'0')}.${String(p[1]).padStart(2,'0')}`;
   }
 
+  function fmtDateWithTime(d, t) {
+    const datePart = d || '';
+    if (!t || t === '종일') return datePart + (t === '종일' ? ' 종일' : '');
+    const m = t.match(/^(\d{1,2}):(\d{2})$/);
+    if (!m) return datePart;
+    const h = parseInt(m[1]);
+    let timePart;
+    if (h === 0)       timePart = '오전 12시';
+    else if (h < 12)   timePart = '오전 ' + h + '시';
+    else if (h === 12) timePart = '오후 12시';
+    else               timePart = '오후 ' + (h - 12) + '시';
+    return datePart + ' ' + timePart;
+  }
+
   const NUM_ROWS = 7;
 
   const pages = todayJobs.map((job, idx) => {
@@ -48,7 +62,7 @@ function printWorkOrders() {
     <div class="meta-grid">
       <div class="meta-item"><span class="meta-label">담당자</span><input class="meta-value" type="text" value=""></div>
       <div class="meta-item"><span class="meta-label">차종</span><input class="meta-value" type="text" value="${esc(job.model)}"></div>
-      <div class="meta-item"><span class="meta-label">날짜</span><input class="meta-value" type="text" value="${esc(fmtDate(job.date))}"></div>
+      <div class="meta-item"><span class="meta-label">날짜</span><input class="meta-value" type="text" value="${esc(fmtDateWithTime(job.date, job.time))}"></div>
       <div class="meta-item"><span class="meta-label">차량 번호</span><input class="meta-value" type="text" value="${esc(job.plate)}"></div>
       <div class="meta-item wide"><span class="meta-label">주행 거리</span><input class="meta-value" type="text" value=""></div>
     </div>
