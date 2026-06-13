@@ -1,10 +1,29 @@
+// ── 작업 지시서 날짜 선택 ────────────────────────────────────
+function openWorkorderPicker() {
+  const d = new Date();
+  const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  document.getElementById('workorderDate').value = val;
+  document.getElementById('workorderPicker').classList.add('open');
+}
+function closeWorkorderPicker() {
+  document.getElementById('workorderPicker').classList.remove('open');
+}
+function printWorkOrdersFromPicker() {
+  const val = document.getElementById('workorderDate').value;
+  if (!val) return;
+  const parts = val.split('-');
+  const dateStr = `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+  closeWorkorderPicker();
+  printWorkOrders(dateStr);
+}
+
 // ── 작업 지시서 출력 ──────────────────────────────────────────
-function printWorkOrders() {
-  const todayStr = getTodayStr();
+function printWorkOrders(targetDate) {
+  const todayStr = targetDate || getTodayStr();
   const todayJobs = JOBS.filter(j => j.date === todayStr && !j.cancelled);
 
   if (todayJobs.length === 0) {
-    alert('오늘 등록된 일정이 없습니다.');
+    alert(`${todayStr} 등록된 일정이 없습니다.`);
     return;
   }
 
@@ -122,7 +141,7 @@ function printWorkOrders() {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>작업 지시서 ${fmtDate(todayStr)}</title>
+<title>작업 지시서 ${fmtDate(todayStr)} (${todayStr})</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}

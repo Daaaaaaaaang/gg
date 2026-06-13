@@ -218,6 +218,16 @@
   .btn-save:hover{opacity:0.85;}
   .btn-cancel-modal{padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);font-size:14px;cursor:pointer;font-family:inherit;}
 
+  /* Work order date picker */
+  .datepicker-overlay{display:none;position:fixed;inset:0;background:rgba(10,12,25,0.7);z-index:600;align-items:center;justify-content:center;}
+  .datepicker-overlay.open{display:flex;}
+  .datepicker-box{background:var(--surface);border-radius:10px;padding:22px 24px;max-width:320px;width:90%;box-shadow:0 6px 30px rgba(0,0,0,0.5);border:1px solid var(--border);}
+  .datepicker-box p{font-size:15px;margin-bottom:14px;font-weight:600;color:var(--text);}
+  .datepicker-input{width:100%;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:14px;font-family:inherit;background:var(--surface2);color:var(--text);margin-bottom:16px;outline:none;box-sizing:border-box;}
+  .datepicker-input:focus{border-color:var(--accent);}
+  .btn-confirm-ok{flex:1;padding:8px;border-radius:6px;border:none;background:var(--accent);color:white;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+  .btn-confirm-ok:hover{opacity:0.85;}
+
   /* Delete confirm */
   .confirm-overlay{display:none;position:fixed;inset:0;background:rgba(10,12,25,0.7);z-index:600;align-items:center;justify-content:center;}
   .confirm-overlay.open{display:flex;}
