@@ -248,7 +248,7 @@ function renderSchedule() {
         <div class="card-actions">
           <button class="btn-icon" onclick="openModal(${ji})">${PENCIL_SVG}</button>
           <button class="btn-icon btn-del" onclick="askDelete(${ji})">${TRASH_SVG}</button>
-          <button class="btn-icon btn-vin" onclick="lookupVin('${(job.plate||'').replace(/'/g,'')}',this)" title="차대번호 조회">VIN</button>
+          <button class="btn-icon btn-vin" onclick="lookupVin(${ji},'${(job.plate||'').replace(/'/g,'')}',this)" title="차대번호 조회">VIN</button>
         </div>`;
       section.appendChild(card);
     });
@@ -378,7 +378,7 @@ function toggleLongCard(idx) {
 }
 
 // ── 차대번호 조회 ──────────────────────────────────────────────
-async function lookupVin(plate, btn) {
+async function lookupVin(ji, plate, btn) {
   if (!plate) { alert('번호판 정보가 없습니다.'); return; }
   const orig = btn.textContent;
   btn.textContent = '...';
@@ -387,7 +387,9 @@ async function lookupVin(plate, btn) {
     const res = await fetch(`http://localhost:5757/vin?plate=${encodeURIComponent(plate)}`);
     const data = await res.json();
     if (data.vin) {
-      alert(`차대번호\n\n${data.vin}`);
+      JOBS[ji].region = data.vin;
+      saveJobs();
+      renderSchedule();
     } else {
       alert(`차대번호를 찾을 수 없습니다.\n(${plate})`);
     }
