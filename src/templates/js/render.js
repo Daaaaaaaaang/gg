@@ -247,8 +247,10 @@ function renderSchedule() {
         </div>
         <div class="card-actions">
           <button class="btn-icon btn-vin" onclick="lookupVin(${ji},'${(job.plate||'').replace(/'/g,'')}',this)" title="차대번호 조회">VIN</button>
-          <button class="btn-icon" onclick="openModal(${ji})">${PENCIL_SVG}</button>
-          <button class="btn-icon btn-del" onclick="askDelete(${ji})">${TRASH_SVG}</button>
+          <div class="card-actions-col">
+            <button class="btn-icon" onclick="openModal(${ji})">${PENCIL_SVG}</button>
+            <button class="btn-icon btn-del" onclick="askDelete(${ji})">${TRASH_SVG}</button>
+          </div>
         </div>`;
       section.appendChild(card);
     });

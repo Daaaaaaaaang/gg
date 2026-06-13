@@ -133,6 +133,7 @@
 
   /* Card actions */
   .card-actions{display:flex;flex-direction:row;gap:4px;padding-top:2px;align-items:flex-start;}
+  .card-actions-col{display:flex;flex-direction:column;gap:4px;}
   .btn-icon{width:26px;height:26px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.13s;}
   .btn-icon svg{width:18px;height:18px;}
   .btn-icon:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,127,255,0.08);}
