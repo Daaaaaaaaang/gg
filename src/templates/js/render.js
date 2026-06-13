@@ -248,6 +248,7 @@ function renderSchedule() {
         <div class="card-actions">
           <button class="btn-icon" onclick="openModal(${ji})">${PENCIL_SVG}</button>
           <button class="btn-icon btn-del" onclick="askDelete(${ji})">${TRASH_SVG}</button>
+          <button class="btn-icon btn-vin" onclick="lookupVin('${(job.plate||'').replace(/'/g,'')}',this)" title="차대번호 조회">VIN</button>
         </div>`;
       section.appendChild(card);
     });
@@ -374,4 +375,26 @@ function toggleLongCard(idx) {
   if (!card || !body) return;
   const isOpen = body.classList.toggle('open');
   card.classList.toggle('open', isOpen);
+}
+
+// ── 차대번호 조회 ──────────────────────────────────────────────
+async function lookupVin(plate, btn) {
+  if (!plate) { alert('번호판 정보가 없습니다.'); return; }
+  const orig = btn.textContent;
+  btn.textContent = '...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(`http://localhost:5757/vin?plate=${encodeURIComponent(plate)}`);
+    const data = await res.json();
+    if (data.vin) {
+      alert(`차대번호\n\n${data.vin}`);
+    } else {
+      alert(`차대번호를 찾을 수 없습니다.\n(${plate})`);
+    }
+  } catch(e) {
+    alert('서버에 연결할 수 없습니다.\npython vin_server.py 를 먼저 실행하세요.');
+  } finally {
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
 }
