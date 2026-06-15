@@ -75,6 +75,7 @@ function printWorkOrders(targetDate) {
     return `<div class="paper" id="paper-${idx}">
   <div class="doc-header">
     <div class="title-block">
+      <div class="doc-index">${idx + 1}</div>
       <div class="doc-title">작업 지시서</div>
       <div class="doc-sub">WORK ORDER</div>
     </div>
@@ -155,6 +156,7 @@ function printWorkOrders(targetDate) {
   .doc-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;margin-bottom:0;}
   .reservation-row{display:flex;flex-direction:column;gap:4px;margin-top:-4px;margin-bottom:14px;}
   .reservation-full{width:100%;resize:none;overflow:hidden;line-height:1.6;min-height:22px;padding:2px 0 4px;}
+  .doc-index{font-size:11px;font-weight:400;color:#bbb;letter-spacing:0.3px;margin-bottom:4px;}
   .title-block .doc-title{font-size:33px;font-weight:500;color:#1a1a1a;letter-spacing:-0.5px;line-height:1.1;}
   .title-block .doc-sub{font-size:12px;font-weight:300;color:#999;letter-spacing:1.5px;margin-top:6px;}
   .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;min-width:340px;}
