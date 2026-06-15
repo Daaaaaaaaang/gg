@@ -20,7 +20,7 @@ function printWorkOrdersFromPicker() {
 // ── 작업 지시서 출력 ──────────────────────────────────────────
 function printWorkOrders(targetDate) {
   const todayStr = targetDate || getTodayStr();
-  const todayJobs = JOBS.filter(j => j.date === todayStr && !j.cancelled);
+  const todayJobs = JOBS.filter(j => j.date === todayStr && !j.cancelled && !j.done);
 
   if (todayJobs.length === 0) {
     alert(`${todayStr} 등록된 일정이 없습니다.`);
